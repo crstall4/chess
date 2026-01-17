@@ -4,27 +4,33 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 public class BishopMovesCalculator implements PieceMovesCalculator{
-    @Override
-    public Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition myPosition) {
-        Collection<ChessMove> moves = new ArrayList<>();
-        int myRow = myPosition.getRow();
-        int myCol = myPosition.getColumn();
-        ChessPosition test = new ChessPosition(myRow, myCol);
 
-        test.setCol(myCol+1);
-        test.setRow(myRow+1);
-        while(test.getRow() <= 8 && test.getColumn() <= 8){
+    private Collection<ChessMove> moveBy(int moveRow, int moveCol, ChessBoard board, ChessPosition myPosition){
+        Collection<ChessMove> moves = new ArrayList<>();
+        ChessPosition test = new ChessPosition(myPosition.getRow()+moveRow, myPosition.getColumn()+moveCol);
+        while(test.getRow() <= 8 && test.getColumn() <= 8 && test.getRow() > 0 && test.getColumn() > 0){
             if(board.getPiece(test) == null){
                 moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(),test.getColumn()), ChessPiece.PieceType.BISHOP));
-                test.setCol(test.getColumn()+1);
-                test.setRow(test.getRow()+1);
+                test.setRow(test.getRow()+moveRow);
+                test.setCol(test.getColumn()+moveCol);
             }
             else {
                 moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(),test.getColumn()), ChessPiece.PieceType.BISHOP));
                 break;
             }
-
         }
+
+        return moves;
+    }
+
+    @Override
+    public Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition myPosition) {
+        Collection<ChessMove> moves = new ArrayList<>();
+
+        moves.addAll(moveBy(1,1,board,myPosition));
+        moves.addAll(moveBy(-1,-1,board,myPosition));
+        moves.addAll(moveBy(1,-1,board,myPosition));
+        moves.addAll(moveBy(-1,1,board,myPosition));
 
         return moves;
     }
