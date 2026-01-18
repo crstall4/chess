@@ -77,7 +77,7 @@ public class ChessPiece {
                 calc = new RookMovesCalculator();
                 break;
             default:
-                calc = new BishopMovesCalculator();
+                calc = new QueenMovesCalculator();
                 break;
         }
         return calc.calculateMoves(board,myPosition);
