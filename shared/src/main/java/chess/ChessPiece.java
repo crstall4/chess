@@ -79,8 +79,11 @@ public class ChessPiece {
             case PieceType.PAWN:
                 calc = new PawnMovesCalculator();
                 break;
-            default:
+            case PieceType.QUEEN:
                 calc = new QueenMovesCalculator();
+                break;
+            default:
+                calc = new KingMovesCalculator();
                 break;
         }
         return calc.calculateMoves(board,myPosition);
