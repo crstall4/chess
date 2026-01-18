@@ -76,6 +76,9 @@ public class ChessPiece {
             case PieceType.ROOK:
                 calc = new RookMovesCalculator();
                 break;
+            case PieceType.PAWN:
+                calc = new PawnMovesCalculator();
+                break;
             default:
                 calc = new QueenMovesCalculator();
                 break;
