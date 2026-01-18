@@ -69,11 +69,16 @@ public class ChessPiece {
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
         PieceMovesCalculator calc;
         ChessPiece piece = board.getPiece(myPosition);
-        if(piece.getPieceType() == PieceType.BISHOP) {
-            calc = new BishopMovesCalculator();
-        }
-        else{
-            calc = new BishopMovesCalculator();
+        switch(piece.getPieceType()){
+            case PieceType.BISHOP:
+                calc = new BishopMovesCalculator();
+                break;
+            case PieceType.ROOK:
+                calc = new RookMovesCalculator();
+                break;
+            default:
+                calc = new BishopMovesCalculator();
+                break;
         }
         return calc.calculateMoves(board,myPosition);
     }
