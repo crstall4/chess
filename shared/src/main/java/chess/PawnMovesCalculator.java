@@ -5,18 +5,24 @@ import java.util.Collection;
 
 public class PawnMovesCalculator implements PieceMovesCalculator{
 
+    private void addMoves(Collection<ChessMove> moves, ChessPosition test, ChessBoard board, ChessPosition myPosition){
+        if((board.getPiece(myPosition).getTeamColor() == ChessGame.TeamColor.WHITE && test.getRow()==8) || (board.getPiece(myPosition).getTeamColor() == ChessGame.TeamColor.BLACK && test.getRow()==1)){
+            moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(), test.getColumn()), ChessPiece.PieceType.QUEEN));
+            moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(), test.getColumn()), ChessPiece.PieceType.ROOK));
+            moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(), test.getColumn()), ChessPiece.PieceType.KNIGHT));
+            moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(), test.getColumn()), ChessPiece.PieceType.BISHOP));
+        }
+        else {
+            moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(), test.getColumn()), null));
+        }
+    }
+
     private void trySpot(Collection<ChessMove> moves, ChessPosition test, ChessBoard board, ChessPosition myPosition){
         if(!(test.getRow() <= 8 && test.getColumn() <= 8 && test.getRow() > 0 && test.getColumn() > 0)){
             return;
         }
         if(board.getPiece(test) == null){
-
-            moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(),test.getColumn()), null));
-        }
-        else {
-            if (board.getPiece(test).getTeamColor() != board.getPiece(myPosition).getTeamColor()) {
-                moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(), test.getColumn()), null));
-            }
+            addMoves(moves,test,board,myPosition);
         }
     }
 
@@ -25,7 +31,7 @@ public class PawnMovesCalculator implements PieceMovesCalculator{
             return;
         }
         if (board.getPiece(test) != null && (board.getPiece(test).getTeamColor() != board.getPiece(myPosition).getTeamColor())) {
-            moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(), test.getColumn()), null));
+            addMoves(moves,test,board,myPosition);
         }
     }
     private void initialMove(int forwards, Collection<ChessMove> moves, ChessBoard board, ChessPosition myPosition){
