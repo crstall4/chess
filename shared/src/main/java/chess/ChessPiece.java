@@ -82,6 +82,9 @@ public class ChessPiece {
             case PieceType.QUEEN:
                 calc = new QueenMovesCalculator();
                 break;
+            case PieceType.KNIGHT:
+                calc = new KnightMovesCalculator();
+                break;
             default:
                 calc = new KingMovesCalculator();
                 break;
