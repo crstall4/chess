@@ -67,8 +67,22 @@ public class ChessGame {
         if(!piece.pieceMoves(board,start).contains(move)){
             throw new InvalidMoveException("You tried to make an invalid move.");
         }
+        TeamColor color = piece.getTeamColor();
+        if(color != teamTurn){
+            throw new InvalidMoveException("You tried to make a move out of turn.");
+        }
+        ChessPiece.PieceType promoteTo = move.getPromotionPiece();
+        if(promoteTo == null){
+            promoteTo = piece.getPieceType();
+        }
         board.addPiece(start,null);
-        board.addPiece(move.getEndPosition(),piece);
+        board.addPiece(move.getEndPosition(),new ChessPiece(color, promoteTo));
+        if (teamTurn == TeamColor.BLACK){
+            teamTurn = TeamColor.WHITE;
+        }
+        else {
+            teamTurn = TeamColor.BLACK;
+        }
     }
 
     /**
