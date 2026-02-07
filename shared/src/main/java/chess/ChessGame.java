@@ -16,6 +16,8 @@ public class ChessGame {
 
     public ChessGame() {
         board = new ChessBoard();
+        board.resetBoard();
+        teamTurn = TeamColor.WHITE;
     }
 
     /**
@@ -76,6 +78,8 @@ public class ChessGame {
         if(promoteTo == null){
             promoteTo = piece.getPieceType();
         }
+        ChessBoard backupBoard = ChessBoard.deepcopy(board);
+        TeamColor backupTeamTurn = teamTurn;
         board.addPiece(start,null);
         board.addPiece(move.getEndPosition(),new ChessPiece(color, promoteTo));
         if (teamTurn == TeamColor.BLACK){
@@ -83,6 +87,11 @@ public class ChessGame {
         }
         else {
             teamTurn = TeamColor.BLACK;
+        }
+        if(isInCheck(backupTeamTurn)){
+            board = backupBoard;
+            teamTurn = backupTeamTurn;
+            throw new InvalidMoveException("You tried to make a move that would put you in check.");
         }
     }
 
@@ -150,9 +159,7 @@ public class ChessGame {
                     if(!isInCheck(teamColor)){
                         return false;
                     }
-                } catch (InvalidMoveException e) {
-                    throw new RuntimeException(e);
-                }
+                } catch (InvalidMoveException _) {}
                 board = backupBoard;
                 teamTurn = backupTeamTurn;
             }
