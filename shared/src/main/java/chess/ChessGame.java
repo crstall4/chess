@@ -11,9 +11,10 @@ import java.util.Collection;
 public class ChessGame {
 
     private TeamColor teamTurn;
+    private ChessBoard board;
 
     public ChessGame() {
-
+        board = new ChessBoard();
     }
 
     /**
@@ -58,7 +59,16 @@ public class ChessGame {
      * @throws InvalidMoveException if move is invalid
      */
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        throw new RuntimeException("Not implemented");
+        ChessPosition start = move.getStartPosition();
+        ChessPiece piece = board.getPiece(start);
+        if(piece == null){
+            throw new InvalidMoveException("You tried to move a piece that doesn't exist.");
+        }
+        if(!piece.pieceMoves(board,start).contains(move)){
+            throw new InvalidMoveException("You tried to make an invalid move.");
+        }
+        board.addPiece(start,null);
+        board.addPiece(move.getEndPosition(),piece);
     }
 
     /**
@@ -98,9 +108,13 @@ public class ChessGame {
      * @param board the new board to use
      */
     public void setBoard(ChessBoard board) {
-        throw new RuntimeException("Not implemented");
+        for(int i = 1; i <= 8; i++){
+            for(int j = 1; j <= 8; j++){
+                ChessPosition pos = new ChessPosition(i,j);
+                this.board.addPiece(pos,board.getPiece(pos));
+            }
+        }
     }
-
     /**
      * Gets the current chessboard
      *
