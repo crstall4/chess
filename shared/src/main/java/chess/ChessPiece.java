@@ -91,4 +91,8 @@ public class ChessPiece {
         }
         return calc.calculateMoves(board,myPosition);
     }
+
+    public static ChessPiece deepcopy(ChessPiece piece){
+        return new ChessPiece(piece.pieceColor,piece.type);
+    }
 }

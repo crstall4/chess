@@ -126,21 +126,38 @@ public class ChessGame {
         if(!isInCheck(teamColor)){
             return false;
         }
-        Collection<ChessPiece> myPieces = new ArrayList<>();
+        Collection<ChessPosition> myPieces = new ArrayList<>();
         for(int row = 1; row <= 8; row++){
             for(int col = 1; col <= 8; col++) {
                 ChessPosition pos = new ChessPosition(row,col);
                 ChessPiece piece = board.getPiece(pos);
                 if(piece != null){
                     if(piece.getTeamColor() == teamColor){
-                        myPieces.add(piece);
+                        myPieces.add(pos);
                     }
                 }
             }
         }
         // simulate every possible piece move, and see if any of them result in the king no longer being in check.
         // to do this we probably need to write a deep copy method for chessboard.
-        return false;
+        for(ChessPosition pos : myPieces){
+            ChessPiece piece = board.getPiece(pos);
+            for(ChessMove move : piece.pieceMoves(board,pos)){
+                ChessBoard backupBoard = ChessBoard.deepcopy(board);
+                TeamColor backupTeamTurn = teamTurn;
+                try{
+                    makeMove(move);
+                    if(!isInCheck(teamColor)){
+                        return false;
+                    }
+                } catch (InvalidMoveException e) {
+                    throw new RuntimeException(e);
+                }
+                board = backupBoard;
+                teamTurn = backupTeamTurn;
+            }
+        }
+        return true;
     }
 
     /**
