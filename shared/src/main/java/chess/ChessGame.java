@@ -68,7 +68,7 @@ public class ChessGame {
                 board = backupBoard;
                 teamTurn = backupTeamTurn;
                 actualMoves.add(move);
-            } catch (InvalidMoveException _) {
+            } catch (InvalidMoveException e) {
                 board = backupBoard;
                 teamTurn = backupTeamTurn;
             }
@@ -195,7 +195,7 @@ public class ChessGame {
                     if(!isInCheck(teamColor)){
                         return false;
                     }
-                } catch (InvalidMoveException _) {}
+                } catch (InvalidMoveException e) {}
                 board = backupBoard;
                 teamTurn = backupTeamTurn;
             }
@@ -241,7 +241,7 @@ public class ChessGame {
                 board = backupBoard;
                 teamTurn = backupTeamTurn;
                 return false;
-            } catch (InvalidMoveException _) {
+            } catch (InvalidMoveException e) {
                 board = backupBoard;
                 teamTurn = backupTeamTurn;
             }
