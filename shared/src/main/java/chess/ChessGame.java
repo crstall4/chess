@@ -175,7 +175,45 @@ public class ChessGame {
      * @return True if the specified team is in stalemate, otherwise false
      */
     public boolean isInStalemate(TeamColor teamColor) {
-        throw new RuntimeException("Not implemented");
+        if(isInCheck(teamColor) || teamColor != teamTurn){
+
+            return false;
+        }
+        Collection<ChessMove> myPossibleMoves = new ArrayList<>();
+        for(int row = 1; row <= 8; row++){
+            for(int col = 1; col <= 8; col++) {
+                ChessPosition pos = new ChessPosition(row,col);
+                ChessPiece piece = board.getPiece(pos);
+                if(piece != null){
+                    if(piece.getTeamColor() == teamColor){
+                        myPossibleMoves.addAll(piece.pieceMoves(board, pos));
+                    }
+                }
+            }
+        }
+
+        if(myPossibleMoves.isEmpty()){
+            return true;
+        }
+
+
+        for(ChessMove move : myPossibleMoves){
+            ChessBoard backupBoard = ChessBoard.deepcopy(board);
+            TeamColor backupTeamTurn = teamTurn;
+            try{
+                makeMove(move);
+                board = backupBoard;
+                teamTurn = backupTeamTurn;
+                return false;
+            } catch (InvalidMoveException _) {
+                board = backupBoard;
+                teamTurn = backupTeamTurn;
+            }
+
+        }
+
+        System.out.println("BRUH");
+        return true; // No legal moves were found
     }
 
     /**
