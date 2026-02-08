@@ -2,6 +2,7 @@ package chess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -52,7 +53,28 @@ public class ChessGame {
      * startPosition
      */
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
-        throw new RuntimeException("Not implemented");
+        ChessPiece piece = board.getPiece(startPosition);
+        if(piece == null){
+            return new ArrayList<>();
+        }
+        Collection<ChessMove> potentialMoves = piece.pieceMoves(board,startPosition);
+        Collection<ChessMove> actualMoves = new ArrayList<>();
+        for(ChessMove move : potentialMoves){
+            ChessBoard backupBoard = ChessBoard.deepcopy(board);
+            TeamColor backupTeamTurn = teamTurn;
+            teamTurn = piece.getTeamColor();
+            try{
+                makeMove(move);
+                board = backupBoard;
+                teamTurn = backupTeamTurn;
+                actualMoves.add(move);
+            } catch (InvalidMoveException _) {
+                board = backupBoard;
+                teamTurn = backupTeamTurn;
+            }
+
+        }
+        return actualMoves;
     }
 
     /**
@@ -93,6 +115,20 @@ public class ChessGame {
             teamTurn = backupTeamTurn;
             throw new InvalidMoveException("You tried to make a move that would put you in check.");
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        ChessGame chessGame = (ChessGame) o;
+        return teamTurn == chessGame.teamTurn && Objects.equals(board, chessGame.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(teamTurn, board);
     }
 
     /**
