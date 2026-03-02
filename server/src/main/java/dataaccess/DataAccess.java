@@ -6,6 +6,7 @@ import model.*;
 public interface DataAccess {
     void clear() throws DataAccessException;
 
+    void createUser(UserData user) throws DataAccessException;
 
 
 //    Pet addPet(Pet pet) throws DataAccessException;
