@@ -7,11 +7,11 @@ import model.*;
 public class MemoryDataAccess implements DataAccess {
     final private HashMap<Integer, UserData> users = new HashMap<>();
 
-    public void createUser(UserData user) {
+    public UserData createUser(UserData user) {
         user = new UserData(user.username(), user.password(), user.email());
 
         users.put(user.username().hashCode(), user);
-        return;
+        return user;
     }
 
     public void clear() {
