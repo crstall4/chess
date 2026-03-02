@@ -17,7 +17,7 @@ public class Server {
         this.service = service;
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", this::createUser)
-                .delete("/user", this::deleteAllUsers);
+                .delete("/db", this::deleteAllUsers);
 //        javalin = Javalin.create(config -> config.staticFiles.add("public"))
 //                .post("/pet", this::addPet)
 //                .get("/pet", this::listPets)
