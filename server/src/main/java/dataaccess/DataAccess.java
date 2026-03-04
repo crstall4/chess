@@ -8,6 +8,7 @@ public interface DataAccess {
 
     UserData createUser(UserData user) throws DataAccessException;
 
+    AuthData loginUser(UserData user) throws DataAccessException;
 
 //    Pet addPet(Pet pet) throws DataAccessException;
 //
