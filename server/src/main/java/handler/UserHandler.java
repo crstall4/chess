@@ -30,10 +30,28 @@ public class UserHandler {
     }
 
     public void handleClear(Context ctx){
-        userService.deleteAllUsers();
+        try {
+            userService.deleteAllUsers();
+        } catch (ResponseException e) {
+            ctx.status(e.getStatusCode());
+            ctx.json(e.toJson());
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.json(new ResponseException(500, e.getMessage()).toJson());
+        }
     }
 
     public void handleLogin(Context ctx){
-
+        try{
+            UserData user = new Gson().fromJson(ctx.body(), UserData.class);
+            user = userService.createUser(user);
+            ctx.result(new Gson().toJson(user));
+        } catch (ResponseException e) {
+            ctx.status(e.getStatusCode());
+            ctx.json(e.toJson());
+        } catch (Exception e) {
+            ctx.status(500);
+            ctx.json(new ResponseException(500, e.getMessage()).toJson());
+        }
     }
 }

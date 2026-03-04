@@ -6,7 +6,7 @@ import exception.ResponseException;
 import model.*;
 
 
-public class MemoryUserDAO implements DataAccessObject {
+public class MemoryUserDAO implements UserDAO {
     final private HashMap<Integer, UserData> users = new HashMap<>();
 
     public UserData createUser(UserData user) {

@@ -1,6 +1,6 @@
 package service;
 
-import dataaccess.DataAccessObject;
+import dataaccess.UserDAO;
 import dataaccess.DataAccessException;
 import exception.ResponseException;
 import model.AuthData;
@@ -8,9 +8,9 @@ import model.UserData;
 
 public class UserService {
 
-    private final DataAccessObject dataAccess;
+    private final UserDAO dataAccess;
 
-    public UserService(DataAccessObject dataAccess) {
+    public UserService(UserDAO dataAccess) {
         this.dataAccess = dataAccess;
     }
 

@@ -11,7 +11,7 @@ public class Server {
     private final Javalin javalin;
 
     public Server() {
-        UserService userService = new UserService(new MemoryDAO());
+        UserService userService = new UserService(new MemoryUserDAO());
         UserHandler userHandler = new UserHandler(userService);
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", userHandler::handleRegister)
