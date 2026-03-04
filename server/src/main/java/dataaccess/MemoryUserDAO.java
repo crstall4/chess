@@ -6,7 +6,7 @@ import exception.ResponseException;
 import model.*;
 
 
-public class MemoryDataAccess implements DataAccess {
+public class MemoryUserDAO implements DataAccessObject {
     final private HashMap<Integer, UserData> users = new HashMap<>();
 
     public UserData createUser(UserData user) {
@@ -20,11 +20,11 @@ public class MemoryDataAccess implements DataAccess {
         users.clear();
     }
 
-    public AuthData loginUser(UserData logonAttempt){
+    public UserData getUserData(UserData logonAttempt) throws ResponseException{
         try{
-            users.get(logonAttempt.username().hashCode());
+            return users.get(logonAttempt.username().hashCode());
         }catch(Exception e){
-            throw new ResponseException(ResponseException.Code.ClientError, "Unauthorized");
+            throw new ResponseException(401, "Unauthorized");
         }
     }
 }

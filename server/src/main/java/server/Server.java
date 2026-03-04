@@ -1,28 +1,22 @@
 package server;
 
-import com.google.gson.Gson;
-import dataaccess.DataAccessException;
-import dataaccess.MemoryDataAccess;
+import dataaccess.MemoryDAO;
 import exception.ResponseException;
 import handler.UserHandler;
 import io.javalin.*;
-import model.UserData;
 import service.UserService;
-import io.javalin.http.Context;
 
 
 public class Server {
-    private final UserService service;
     private final Javalin javalin;
-    private UserHandler userHandler;
 
     public Server() {
-        this.service = new UserService(new MemoryDataAccess());
-        loginhandler = new LoginHandler();
+        UserService userService = new UserService(new MemoryDAO());
+        UserHandler userHandler = new UserHandler(userService);
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
-                .post("/user", this::createUser)
-                .delete("/db", this::deleteAllUsers)
-                .post("/session", this::loginUser);
+                .post("/user", userHandler::handleRegister)
+                .delete("/db", userHandler::handleClear)
+                .post("/session", userHandler::handleLogin);
 //        javalin = Javalin.create(config -> config.staticFiles.add("public"))
 //                .post("/pet", this::addPet)
 //                .get("/pet", this::listPets)
@@ -36,7 +30,6 @@ public class Server {
 //                });
     }
 
-
     public int run(int desiredPort) {
         javalin.start(desiredPort);
         return javalin.port();
@@ -44,22 +37,5 @@ public class Server {
 
     public void stop() {
         javalin.stop();
-    }
-
-
-    private void createUser(Context ctx) throws ResponseException, DataAccessException {
-        UserData user = new Gson().fromJson(ctx.body(), UserData.class);
-        user = service.createUser(user);
-        ctx.result(new Gson().toJson(user));
-    }
-
-    private void deleteAllUsers(Context ctx) throws ResponseException, DataAccessException {
-        service.deleteAllUsers();
-        ctx.status(204);
-    }
-
-    private void loginUser(Context ctx) throws ResponseException {
-        UserData user = new Gson().fromJson(ctx.body(), UserData.class);
-        return service.loginUser(user);
     }
 }

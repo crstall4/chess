@@ -1,6 +1,6 @@
 package service;
 
-import dataaccess.DataAccess;
+import dataaccess.DataAccessObject;
 import dataaccess.DataAccessException;
 import exception.ResponseException;
 import model.AuthData;
@@ -8,9 +8,9 @@ import model.UserData;
 
 public class UserService {
 
-    private final DataAccess dataAccess;
+    private final DataAccessObject dataAccess;
 
-    public UserService(DataAccess dataAccess) {
+    public UserService(DataAccessObject dataAccess) {
         this.dataAccess = dataAccess;
     }
 
