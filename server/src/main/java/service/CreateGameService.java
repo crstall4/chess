@@ -21,6 +21,9 @@ public class CreateGameService {
 
     public GameData createGame(String token, GameData game) throws ResponseException{
         authDAO.confirmAuth(token);
+        if(game.gameName() == null){
+            throw new ResponseException(400, "Error: Bad Request. Username, password, and email fields all must be filled out.");
+        }
         return gameDAO.createGame(game);
 
     }
