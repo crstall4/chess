@@ -20,9 +20,11 @@ public class LoginHandler {
             Object auth = userService.loginUser(user);
             ctx.result(new Gson().toJson(auth));
         } catch (ResponseException e) {
+            System.out.println(e.getStatusCode());
             ctx.status(e.getStatusCode());
             ctx.json(e.toJson());
         } catch (Exception e) {
+            System.out.println(e);
             ctx.status(500);
             ctx.json(new ResponseException(500, e.getMessage()).toJson());
         }

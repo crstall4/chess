@@ -39,10 +39,11 @@ public class UserService {
                 return authDAO.createAuth(user.username());
             }
             else{
-                throw new ResponseException(401, "Unauthorized");
+                throw new ResponseException(401, "Error: Unauthorized");
             }
         } catch (ResponseException e) {
-            throw new ResponseException(401, "Unauthorized");
+            System.out.println(e);
+            throw new ResponseException(401, "Error: Unauthorized");
         }
     }
 

@@ -27,13 +27,13 @@ public class MemoryUserDAO implements UserDAO {
         try{
             UserData user = users.get(logonAttempt.username().hashCode());
             if(user == null){
-                throw new ResponseException(401, "Unauthorized");
+                throw new ResponseException(401, "Error: Unauthorized");
             }else{
                 return user;
             }
         }
         catch(Exception e){
-            throw new ResponseException(401, "Unauthorized");
+            throw new ResponseException(401, "Error: Unauthorized");
         }
     }
 }

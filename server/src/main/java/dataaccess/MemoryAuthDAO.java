@@ -21,13 +21,13 @@ public class MemoryAuthDAO implements AuthDAO {
         try{
             String auth = authTokens.get(username.hashCode());
             if(auth == null){
-                throw new ResponseException(401, "Unauthorized");
+                throw new ResponseException(401, "Error: Unauthorized");
             }else{
                 return new AuthData(auth,username);
             }
         }
         catch(Exception e){
-            throw new ResponseException(401, "Unauthorized");
+            throw new ResponseException(401, "Error: Unauthorized");
         }
     }
 
