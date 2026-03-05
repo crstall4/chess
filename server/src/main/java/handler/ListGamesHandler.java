@@ -26,15 +26,15 @@ public class ListGamesHandler {
             String auth = ctx.header("Authorization");
             Collection<GameData> games = service.listGames(auth);
             ctx.status(200);
-            ctx.json(Map.of("games", games));
+            ctx.result(new Gson().toJson(Map.of("games", games)));
         } catch (ResponseException e) {
             System.out.println(e.getStatusCode());
             ctx.status(e.getStatusCode());
-            ctx.json(e.toJson());
+            ctx.result(e.toJson());
         } catch (Exception e) {
             System.out.println(e);
             ctx.status(500);
-            ctx.json(new ResponseException(500, e.getMessage()).toJson());
+            ctx.result(new ResponseException(500, e.getMessage()).toJson());
         }
     }
 }

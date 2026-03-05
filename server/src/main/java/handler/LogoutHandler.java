@@ -25,11 +25,11 @@ public class LogoutHandler {
         } catch (ResponseException e) {
             System.out.println(e.getStatusCode());
             ctx.status(e.getStatusCode());
-            ctx.json(e.toJson());
+            ctx.result(e.toJson());
         } catch (Exception e) {
             System.out.println(e);
             ctx.status(500);
-            ctx.json(new ResponseException(500, e.getMessage()).toJson());
+            ctx.result(new ResponseException(500, e.getMessage()).toJson());
         }
     }
 }

@@ -23,10 +23,10 @@ public class RegisterHandler {
             ctx.result(new Gson().toJson(auth));
         } catch (ResponseException e) {
             ctx.status(e.getStatusCode());
-            ctx.json(e.toJson());
+            ctx.result(e.toJson());
         } catch (Exception e) {
             ctx.status(500);
-            ctx.json(new ResponseException(500, e.getMessage()).toJson());
+            ctx.result(new ResponseException(500, e.getMessage()).toJson());
         }
     }
 

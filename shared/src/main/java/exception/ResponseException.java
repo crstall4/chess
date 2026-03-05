@@ -1,5 +1,6 @@
 package exception;
 
+import com.google.gson.Gson;
 import java.util.Map;
 
 public class ResponseException extends Exception {
@@ -10,8 +11,8 @@ public class ResponseException extends Exception {
         this.statusCode = statusCode;
     }
 
-    public Object toJson() {
-        return Map.of("message", getMessage());
+    public String toJson() {
+        return new Gson().toJson(Map.of("message", getMessage()));
     }
 
     public int getStatusCode() {
