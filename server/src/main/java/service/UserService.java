@@ -55,6 +55,10 @@ public class UserService {
         }
     }
 
+    public void logoutUser(String auth) throws ResponseException{
+        authDAO.deleteAuthData(auth);
+    }
+
     //this is written just for the sake of unit tests
     public HashMap<Integer, UserData> getUsers() throws ResponseException{
         return userDAO.getUsers();

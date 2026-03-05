@@ -8,27 +8,18 @@ import java.util.HashMap;
 import java.util.UUID;
 
 public class MemoryAuthDAO implements AuthDAO {
-    final private HashMap<Integer, String> authTokens = new HashMap<>();
+    final private HashMap<String, String> authTokens = new HashMap<>();
 
     @Override
     public AuthData createAuth(String username) throws ResponseException {
-        authTokens.put(username.hashCode(), UUID.randomUUID().toString());
-        return getAuthData(username);
+        AuthData authData = new AuthData(UUID.randomUUID().toString(), username);
+        authTokens.put(authData.authToken(), authData.username());
+        return authData;
     }
 
     @Override
-    public AuthData getAuthData(String username) throws ResponseException {
-        try{
-            String auth = authTokens.get(username.hashCode());
-            if(auth == null){
-                throw new ResponseException(401, "Error: Unauthorized");
-            }else{
-                return new AuthData(auth,username);
-            }
-        }
-        catch(Exception e){
-            throw new ResponseException(401, "Error: Unauthorized");
-        }
+    public void deleteAuthData(String token) {
+        authTokens.remove(token);
     }
 
     @Override
