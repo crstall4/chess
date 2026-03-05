@@ -27,6 +27,9 @@ public class JoinGameHandler {
             GameData game = new Gson().fromJson(ctx.body(), GameData.class);
             String auth = ctx.header("Authorization");
             Map<String, Object> request = new Gson().fromJson(ctx.body(), Map.class);
+            if(request.get("playerColor") == null || request.get("gameID") == null){
+                throw new ResponseException(400, "Error: bad request. you need to select GameID AND player color.");
+            }
             String playerColor = (String) request.get("playerColor");
             int gameID = ((Double) request.get("gameID")).intValue();
             service.joinGame(auth, playerColor, gameID);

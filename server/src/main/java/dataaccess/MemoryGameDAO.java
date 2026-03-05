@@ -40,7 +40,7 @@ public class MemoryGameDAO implements GameDAO {
         }
         if(playerColor.equals("WHITE")){
             if(game.whiteUsername() != null){
-                throw new ResponseException(400, "Error: Bad Request. That game already has a white player.");
+                throw new ResponseException(403, "Error: already taken. That game already has a white player.");
             }
             GameData newGame = new GameData(game.gameID(),username,game.blackUsername(),game.gameName(),game.game());
             games.remove(game.gameID());
@@ -48,7 +48,7 @@ public class MemoryGameDAO implements GameDAO {
         }
         if(playerColor.equals("BLACK")){
             if(game.blackUsername() != null){
-                throw new ResponseException(400, "Error: Bad Request. That game already has a black player.");
+                throw new ResponseException(403, "Error: already taken. That game already has a black player.");
             }
             GameData newGame = new GameData(game.gameID(),game.whiteUsername(),username,game.gameName(),game.game());
             games.remove(game.gameID());
