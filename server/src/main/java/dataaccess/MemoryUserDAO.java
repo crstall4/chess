@@ -9,6 +9,7 @@ import model.*;
 public class MemoryUserDAO implements UserDAO {
     final private HashMap<Integer, UserData> users = new HashMap<>();
 
+    @Override
     public UserData createUser(UserData user) {
         user = new UserData(user.username(), user.password(), user.email());
 
@@ -16,14 +17,22 @@ public class MemoryUserDAO implements UserDAO {
         return user;
     }
 
+    @Override
     public void clear() {
         users.clear();
     }
 
+    @Override
     public UserData getUserData(UserData logonAttempt) throws ResponseException{
         try{
-            return users.get(logonAttempt.username().hashCode());
-        }catch(Exception e){
+            UserData user = users.get(logonAttempt.username().hashCode());
+            if(user == null){
+                throw new ResponseException(401, "Unauthorized");
+            }else{
+                return user;
+            }
+        }
+        catch(Exception e){
             throw new ResponseException(401, "Unauthorized");
         }
     }

@@ -1,8 +1,9 @@
 package server;
 
-import dataaccess.MemoryUserDAO;
-import exception.ResponseException;
-import handler.UserHandler;
+import dataaccess.*;
+import handler.ClearHandler;
+import handler.LoginHandler;
+import handler.RegisterHandler;
 import io.javalin.*;
 import service.UserService;
 
@@ -11,12 +12,21 @@ public class Server {
     private final Javalin javalin;
 
     public Server() {
-        UserService userService = new UserService(new MemoryUserDAO());
-        UserHandler userHandler = new UserHandler(userService);
+        UserDAO userDAO = new MemoryUserDAO();
+        GameDAO gameDAO = new MemoryGameDAO();
+        AuthDAO authDAO = new MemoryAuthDAO();
+
+        UserService userService = new UserService(userDAO, authDAO, gameDAO);
+
+        LoginHandler loginHandler = new LoginHandler(userService);
+        RegisterHandler registerHandler = new RegisterHandler(userService);
+        ClearHandler clearHandler = new ClearHandler(userService);
+
+
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
-                .post("/user", userHandler::handleRegister)
-                .delete("/db", userHandler::handleClear)
-                .post("/session", userHandler::handleLogin);
+                .post("/user", registerHandler::handle)
+                .delete("/db", clearHandler::handle)
+                .post("/session", loginHandler::handle);
 //        javalin = Javalin.create(config -> config.staticFiles.add("public"))
 //                .post("/pet", this::addPet)
 //                .get("/pet", this::listPets)

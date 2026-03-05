@@ -1,7 +1,9 @@
 package service;
 
+
+import dataaccess.AuthDAO;
+import dataaccess.GameDAO;
 import dataaccess.UserDAO;
-import dataaccess.DataAccessException;
 import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
@@ -11,27 +13,30 @@ import java.util.UUID;
 
 public class UserService {
 
-    private final UserDAO dataAccess;
+    private final UserDAO userDAO;
+    private final AuthDAO authDAO;
+    private final GameDAO gameDAO;
 
-    public UserService(UserDAO dataAccess) {
-        this.dataAccess = dataAccess;
+    public UserService(UserDAO userDAO, AuthDAO authDAO, GameDAO gameDAO) {
+        this.userDAO = userDAO;
+        this.authDAO = authDAO;
+        this.gameDAO = gameDAO;
     }
 
-    public UserData createUser(UserData user) throws ResponseException, DataAccessException{
-
-        return dataAccess.createUser(user);
+    public AuthData createUser(UserData user) throws ResponseException{
+        return loginUser(userDAO.createUser(user));
     }
 
-    public void deleteAllUsers() throws ResponseException, DataAccessException {
-        dataAccess.clear();
+    public void deleteAllUsers() throws ResponseException {
+        userDAO.clear();
         return;
     }
 
-    public AuthData loginUser(UserData loginAttempt) throws ResponseException, DataAccessException {
+    public AuthData loginUser(UserData loginAttempt) throws ResponseException {
         try {
-            UserData user = dataAccess.getUserData(loginAttempt);
+            UserData user = userDAO.getUserData(loginAttempt);
             if(Objects.equals(loginAttempt.password(), user.password())){
-                return new AuthData(UUID.randomUUID().toString(), user.username());
+                return authDAO.createAuth(user.username());
             }
             else{
                 throw new ResponseException(401, "Unauthorized");
