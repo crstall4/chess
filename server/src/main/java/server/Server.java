@@ -22,12 +22,14 @@ public class Server {
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
         UserService userService = new UserService(userDAO, authDAO, gameDAO);
         CreateGameService createGameService = new CreateGameService(gameDAO,authDAO);
+        ListGamesService listGamesService = new ListGamesService(gameDAO,authDAO);
 
         LoginHandler loginHandler = new LoginHandler(loginService);
         RegisterHandler registerHandler = new RegisterHandler(registerService);
         LogoutHandler logoutHandler = new LogoutHandler(logoutService);
         ClearHandler clearHandler = new ClearHandler(clearService);
         CreateGameHandler createGameHandler = new CreateGameHandler(createGameService);
+        ListGamesHandler listGamesHandler = new ListGamesHandler(listGamesService);
 
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
@@ -35,7 +37,8 @@ public class Server {
                 .delete("/db", clearHandler::handle)
                 .post("/session", loginHandler::handle)
                 .delete("/session", logoutHandler::handle)
-                .post("/game", createGameHandler::handle);
+                .post("/game", createGameHandler::handle)
+                .get("/game", listGamesHandler::handle);
 //        javalin = Javalin.create(config -> config.staticFiles.add("public"))
 //                .post("/pet", this::addPet)
 //                .get("/pet", this::listPets)

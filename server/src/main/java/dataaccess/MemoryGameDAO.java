@@ -20,4 +20,9 @@ public class MemoryGameDAO implements GameDAO {
         games.put(newGame.gameID(), newGame);
         return newGame;
     }
+
+    @Override
+    public HashMap<Integer, GameData> listGames() throws ResponseException{
+        return games;
+    }
 }
