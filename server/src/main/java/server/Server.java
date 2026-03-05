@@ -1,6 +1,6 @@
 package server;
 
-import dataaccess.MemoryDAO;
+import dataaccess.MemoryUserDAO;
 import exception.ResponseException;
 import handler.UserHandler;
 import io.javalin.*;

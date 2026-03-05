@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import dataaccess.DataAccessException;
 import exception.ResponseException;
 import io.javalin.http.Context;
+import model.AuthData;
 import model.UserData;
 import service.UserService;
 
@@ -44,8 +45,8 @@ public class UserHandler {
     public void handleLogin(Context ctx){
         try{
             UserData user = new Gson().fromJson(ctx.body(), UserData.class);
-            user = userService.createUser(user);
-            ctx.result(new Gson().toJson(user));
+            Object auth = userService.loginUser(user);
+            ctx.result(new Gson().toJson(auth));
         } catch (ResponseException e) {
             ctx.status(e.getStatusCode());
             ctx.json(e.toJson());
