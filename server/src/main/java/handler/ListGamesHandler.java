@@ -27,7 +27,7 @@ public class ListGamesHandler {
             String auth = ctx.header("Authorization");
             Collection<GameData> games = service.listGames(auth, game);
             ctx.status(200);
-            ctx.json(new Gson().toJson(games));
+            ctx.json(Map.of("games", games));
         } catch (ResponseException e) {
             System.out.println(e.getStatusCode());
             ctx.status(e.getStatusCode());
