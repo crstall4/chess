@@ -6,7 +6,9 @@ import java.util.Collection;
 public class PawnMovesCalculator implements PieceMovesCalculator{
 
     private void addMoves(Collection<ChessMove> moves, ChessPosition test, ChessBoard board, ChessPosition myPosition){
-        if((board.getPiece(myPosition).getTeamColor() == ChessGame.TeamColor.WHITE && test.getRow()==8) || (board.getPiece(myPosition).getTeamColor() == ChessGame.TeamColor.BLACK && test.getRow()==1)){
+        ChessPiece piece = board.getPiece(myPosition);
+        if((piece.getTeamColor() == ChessGame.TeamColor.WHITE && test.getRow()==8) ||
+           (piece.getTeamColor() == ChessGame.TeamColor.BLACK && test.getRow()==1)){
             moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(), test.getColumn()), ChessPiece.PieceType.QUEEN));
             moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(), test.getColumn()), ChessPiece.PieceType.ROOK));
             moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(), test.getColumn()), ChessPiece.PieceType.KNIGHT));

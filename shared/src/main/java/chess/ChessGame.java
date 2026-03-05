@@ -144,17 +144,19 @@ public class ChessGame {
             for(int col = 1; col <= 8; col++) {
                 ChessPosition pos = new ChessPosition(row,col);
                 ChessPiece piece = board.getPiece(pos);
-                if(piece != null){
-                    if(piece.getTeamColor() == teamColor){
-                        if(piece.getPieceType() == ChessPiece.PieceType.KING){
-                            kingPosition = new ChessPosition(row,col);
-                        }
+                if(piece == null){
+                    continue;
+                }
+                if(piece.getTeamColor() == teamColor){
+                    if(piece.getPieceType() == ChessPiece.PieceType.KING){
+                        kingPosition = new ChessPosition(row,col);
                     }
-                    if(piece.getTeamColor() != teamColor){
-                        for(ChessMove move : piece.pieceMoves(board,pos)){
-                            opponentPossibleMoves.add(move.getEndPosition());
-                        }
+                }
+                if(piece.getTeamColor() != teamColor){
+                    for(ChessMove move : piece.pieceMoves(board,pos)){
+                        opponentPossibleMoves.add(move.getEndPosition());
                     }
+                
                 }
             }
         }

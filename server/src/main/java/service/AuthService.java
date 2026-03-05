@@ -17,9 +17,4 @@ public class AuthService {
     public AuthData createAuth(UserData user){
         return new AuthData("asdf", "asdf");
     }
-
-    public void deleteAllUsers() throws ResponseException, DataAccessException {
-        dataAccess.clear();
-        return;
-    }
 }
