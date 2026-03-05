@@ -31,10 +31,15 @@ public class MemoryAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void clear() {
+    public void clear() throws ResponseException {
         authTokens.clear();
     }
 
+    @Override
+    public String getUsername(String token) throws ResponseException {
+        confirmAuth(token);
+        return authTokens.get(token);
+    }
 
 
 }
