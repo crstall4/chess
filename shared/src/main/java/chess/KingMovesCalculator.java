@@ -3,23 +3,9 @@ package chess;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import static chess.GeneralMoveCalculator.trySpot;
+
 public class KingMovesCalculator implements PieceMovesCalculator{
-
-    private void trySpot(Collection<ChessMove> moves, ChessPosition test, ChessBoard board, ChessPosition myPosition){
-        if(!(test.getRow() <= 8 && test.getColumn() <= 8 && test.getRow() > 0 && test.getColumn() > 0)){
-            return;
-        }
-        if(board.getPiece(test) == null){
-            moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(), test.getColumn()), null));
-        }
-        else{
-            if(board.getPiece(test).getTeamColor() != board.getPiece(myPosition).getTeamColor()){
-                moves.add(new ChessMove(myPosition, new ChessPosition(test.getRow(), test.getColumn()), null));
-            }
-        }
-    }
-
-
 
     @Override
     public Collection<ChessMove> calculateMoves(ChessBoard board, ChessPosition myPosition) {
