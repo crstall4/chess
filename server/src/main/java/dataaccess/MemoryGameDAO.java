@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 public class MemoryGameDAO implements GameDAO {
     final private HashMap<Integer, GameData> games = new HashMap<>();
-    private int nextId = 0;
+    private int nextId = 1;
 
     public void clear() {
         games.clear();
