@@ -22,10 +22,10 @@ public class JoinGameService {
         this.authDAO = authDAO;
     }
 
-    public void joinGame(String token, String playerColor, int GameId) throws ResponseException{
+    public void joinGame(String token, String playerColor, int gameId) throws ResponseException{
         authDAO.confirmAuth(token);
         String username = authDAO.getUsername(token);
-        gameDAO.joinGame(playerColor, GameId, username);
+        gameDAO.joinGame(playerColor, gameId, username);
 
     }
 

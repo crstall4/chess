@@ -19,7 +19,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UnitTests {
-    private static final Logger log = LoggerFactory.getLogger(UnitTests.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UnitTests.class);
     UserDAO userDAO = new MemoryUserDAO();
     GameDAO gameDAO = new MemoryGameDAO();
     AuthDAO authDAO = new MemoryAuthDAO();
