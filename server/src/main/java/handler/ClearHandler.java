@@ -6,19 +6,20 @@ import exception.ResponseException;
 import io.javalin.http.Context;
 import model.AuthData;
 import model.UserData;
+import service.ClearService;
 import service.UserService;
 
 public class ClearHandler {
 
-    public UserService userService;
+    public ClearService clearService;
 
-    public ClearHandler(UserService userService){
-        this.userService = userService;
+    public ClearHandler(ClearService clearService){
+        this.clearService = clearService;
     }
 
     public void handle(Context ctx){
         try {
-            userService.deleteAllDatabases();
+            clearService.clearAllDatabases();
         } catch (ResponseException e) {
             ctx.status(e.getStatusCode());
             ctx.json(e.toJson());

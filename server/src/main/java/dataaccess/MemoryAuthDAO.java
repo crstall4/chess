@@ -19,12 +19,14 @@ public class MemoryAuthDAO implements AuthDAO {
 
     @Override
     public void deleteAuthData(String token) throws ResponseException{
-        String test = authTokens.get(token);
-        if(test == null){
+        confirmAuth(token);
+        authTokens.remove(token);
+    }
+
+    @Override
+    public void confirmAuth(String token) throws ResponseException{
+        if(!authTokens.containsKey(token)){
             throw new ResponseException(401, "Error: Unauthorized. that auth token didnt exist");
-        }
-        else{
-            authTokens.remove(token);
         }
     }
 

@@ -3,23 +3,28 @@ package handler;
 import com.google.gson.Gson;
 import exception.ResponseException;
 import io.javalin.http.Context;
+import model.GameData;
 import model.UserData;
-import service.LoginService;
+import service.CreateGameService;
 import service.UserService;
 
-public class LoginHandler {
+import java.util.Map;
 
-    public LoginService loginService;
+public class CreateGameHandler {
 
-    public LoginHandler(LoginService loginService){
-        this.loginService = loginService;
+    public CreateGameService service;
+
+    public CreateGameHandler(CreateGameService service){
+        this.service = service;
     }
 
     public void handle(Context ctx){
         try{
-            UserData user = new Gson().fromJson(ctx.body(), UserData.class);
-            Object auth = loginService.loginUser(user);
-            ctx.result(new Gson().toJson(auth));
+            GameData game = new Gson().fromJson(ctx.body(), GameData.class);
+            String auth = ctx.header("Authorization");
+            GameData createdGame = service.createGame(auth, game);
+            ctx.status(200);
+            ctx.json(Map.of("gameID", createdGame.gameID()));
         } catch (ResponseException e) {
             System.out.println(e.getStatusCode());
             ctx.status(e.getStatusCode());

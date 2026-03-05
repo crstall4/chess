@@ -1,23 +1,25 @@
 package handler;
 
 import com.google.gson.Gson;
+import com.mysql.cj.log.Log;
 import exception.ResponseException;
 import io.javalin.http.Context;
 import model.UserData;
+import service.LogoutService;
 import service.UserService;
 
 public class LogoutHandler {
 
-    public UserService userService;
+    public LogoutService service;
 
-    public LogoutHandler(UserService userService){
-        this.userService = userService;
+    public LogoutHandler(LogoutService service){
+        this.service = service;
     }
 
     public void handle(Context ctx){
         try{
             String auth = ctx.header("Authorization");
-            userService.logoutUser(auth);
+            service.logoutUser(auth);
             ctx.status(200);
             ctx.result("{}");
         } catch (ResponseException e) {

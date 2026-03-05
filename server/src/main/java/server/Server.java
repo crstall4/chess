@@ -1,12 +1,11 @@
 package server;
 
+import com.mysql.cj.log.Log;
+import com.mysql.cj.protocol.a.ReaderValueEncoder;
 import dataaccess.*;
-import handler.ClearHandler;
-import handler.LoginHandler;
-import handler.RegisterHandler;
-import handler.LogoutHandler;
+import handler.*;
 import io.javalin.*;
-import service.UserService;
+import service.*;
 
 
 public class Server {
@@ -17,19 +16,26 @@ public class Server {
         GameDAO gameDAO = new MemoryGameDAO();
         AuthDAO authDAO = new MemoryAuthDAO();
 
+        LoginService loginService = new LoginService(userDAO, authDAO);
+        RegisterService registerService = new RegisterService(userDAO,loginService);
+        LogoutService logoutService = new LogoutService(authDAO);
+        ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
         UserService userService = new UserService(userDAO, authDAO, gameDAO);
+        CreateGameService createGameService = new CreateGameService(gameDAO,authDAO);
 
-        LoginHandler loginHandler = new LoginHandler(userService);
-        RegisterHandler registerHandler = new RegisterHandler(userService);
-        ClearHandler clearHandler = new ClearHandler(userService);
-        LogoutHandler logoutHandler = new LogoutHandler(userService);
+        LoginHandler loginHandler = new LoginHandler(loginService);
+        RegisterHandler registerHandler = new RegisterHandler(registerService);
+        LogoutHandler logoutHandler = new LogoutHandler(logoutService);
+        ClearHandler clearHandler = new ClearHandler(clearService);
+        CreateGameHandler createGameHandler = new CreateGameHandler(createGameService);
 
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", registerHandler::handle)
                 .delete("/db", clearHandler::handle)
                 .post("/session", loginHandler::handle)
-                .delete("/session", logoutHandler::handle);
+                .delete("/session", logoutHandler::handle)
+                .post("/game", createGameHandler::handle);
 //        javalin = Javalin.create(config -> config.staticFiles.add("public"))
 //                .post("/pet", this::addPet)
 //                .get("/pet", this::listPets)
