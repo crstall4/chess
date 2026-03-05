@@ -18,9 +18,6 @@ public class RegisterHandler {
     public void handle(Context ctx){
         try{
             UserData user = new Gson().fromJson(ctx.body(), UserData.class);
-            if(user.username() == null || user.password() == null || user.email() == null){
-                throw new ResponseException(400, "Error: Bad Request. Username, password, and email fields all must be filled out.");
-            }
             AuthData auth = userService.createUser(user);
             ctx.result(new Gson().toJson(auth));
         } catch (ResponseException e) {

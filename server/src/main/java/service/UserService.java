@@ -8,6 +8,7 @@ import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
 
+import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -24,15 +25,23 @@ public class UserService {
     }
 
     public AuthData createUser(UserData user) throws ResponseException{
+        if(user.username() == null || user.password() == null || user.email() == null){
+            throw new ResponseException(400, "Error: Bad Request. Username, password, and email fields all must be filled out.");
+        }
         return loginUser(userDAO.createUser(user));
     }
 
-    public void deleteAllUsers() throws ResponseException {
+    public void deleteAllDatabases() throws ResponseException {
         userDAO.clear();
+        authDAO.clear();
+        gameDAO.clear();
         return;
     }
 
     public AuthData loginUser(UserData loginAttempt) throws ResponseException {
+        if(loginAttempt.username() == null || loginAttempt.password() == null){
+            throw new ResponseException(400, "Error: Bad Request. Username, password, and email fields all must be filled out.");
+        }
         try {
             UserData user = userDAO.getUserData(loginAttempt);
             if(Objects.equals(loginAttempt.password(), user.password())){
@@ -42,9 +51,13 @@ public class UserService {
                 throw new ResponseException(401, "Error: Unauthorized");
             }
         } catch (ResponseException e) {
-            System.out.println(e);
             throw new ResponseException(401, "Error: Unauthorized");
         }
+    }
+
+    //this is written just for the sake of unit tests
+    public HashMap<Integer, UserData> getUsers() throws ResponseException{
+        return userDAO.getUsers();
     }
 
 

@@ -18,7 +18,7 @@ public class ClearHandler {
 
     public void handle(Context ctx){
         try {
-            userService.deleteAllUsers();
+            userService.deleteAllDatabases();
         } catch (ResponseException e) {
             ctx.status(e.getStatusCode());
             ctx.json(e.toJson());

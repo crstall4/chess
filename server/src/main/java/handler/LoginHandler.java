@@ -17,9 +17,6 @@ public class LoginHandler {
     public void handle(Context ctx){
         try{
             UserData user = new Gson().fromJson(ctx.body(), UserData.class);
-            if(user.username() == null || user.password() == null){
-                throw new ResponseException(400, "Error: Bad Request. Username and password fields both must be filled out.");
-            }
             Object auth = userService.loginUser(user);
             ctx.result(new Gson().toJson(auth));
         } catch (ResponseException e) {

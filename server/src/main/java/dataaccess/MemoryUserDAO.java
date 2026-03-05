@@ -6,6 +6,8 @@ import exception.ResponseException;
 import model.*;
 
 
+
+
 public class MemoryUserDAO implements UserDAO {
     final private HashMap<Integer, UserData> users = new HashMap<>();
 
@@ -40,4 +42,11 @@ public class MemoryUserDAO implements UserDAO {
             throw new ResponseException(401, "Error: Unauthorized");
         }
     }
+
+    @Override
+    public HashMap<Integer, UserData> getUsers() throws ResponseException{
+        return users;
+    }
+
+
 }
