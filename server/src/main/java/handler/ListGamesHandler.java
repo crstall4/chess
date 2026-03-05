@@ -23,9 +23,8 @@ public class ListGamesHandler {
 
     public void handle(Context ctx){
         try{
-            GameData game = new Gson().fromJson(ctx.body(), GameData.class);
             String auth = ctx.header("Authorization");
-            Collection<GameData> games = service.listGames(auth, game);
+            Collection<GameData> games = service.listGames(auth);
             ctx.status(200);
             ctx.json(Map.of("games", games));
         } catch (ResponseException e) {

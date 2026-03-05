@@ -101,7 +101,7 @@ class UnitTests {
         var user = new UserData("brian", "password123", "brian@gmail.com");
         var auth = registerService.registerUser(user);
         logoutService.logoutUser(auth.authToken());
-        ResponseException exception = assertThrows(ResponseException.class, () -> logoutService.logoutUser(auth.authToken()));
+        ResponseException exception = assertThrows(ResponseException.class, () -> listGamesService.listGames(auth.authToken()));
         assertEquals(401, exception.getStatusCode());
     }
 
@@ -124,7 +124,7 @@ class UnitTests {
 
         createGameService.createGame(auth.authToken(),game);
         createGameService.createGame(auth.authToken(),new GameData(5,null, null,"ASDF", null));
-        var games = listGamesService.listGames(auth.authToken(), null);
+        var games = listGamesService.listGames(auth.authToken());
         assertEquals(2, games.size());
     }
 
@@ -145,14 +145,14 @@ class UnitTests {
         var auth = registerService.registerUser(user);
         GameData game = new GameData(4,null, null,"this is the name", null);
         createGameService.createGame(auth.authToken(), game);
-        var games = listGamesService.listGames(auth.authToken(), null);
+        var games = listGamesService.listGames(auth.authToken());
         assertEquals(1, games.size());
     }
 
     //tries to list games with a bad token
     @Test
     void listGamesBad() throws ResponseException{
-        ResponseException exception = assertThrows(ResponseException.class, () -> listGamesService.listGames("fake token", null));
+        ResponseException exception = assertThrows(ResponseException.class, () -> listGamesService.listGames("fake token"));
         assertEquals(401, exception.getStatusCode());
     }
 

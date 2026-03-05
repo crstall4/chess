@@ -22,10 +22,10 @@ public class ListGamesService {
         this.authDAO = authDAO;
     }
 
-    public Collection<GameData> listGames(String token, GameData game) throws ResponseException{
+    public Collection<GameData> listGames(String token) throws ResponseException{
         authDAO.confirmAuth(token);
         return gameDAO.listGames().values();
-        
+
     }
 
 
