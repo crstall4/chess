@@ -13,9 +13,9 @@ public class Server {
     private final Javalin javalin;
 
     public Server() {
-        UserDAO userDAO = new MemoryUserDAO();
-        GameDAO gameDAO = new MemoryGameDAO();
-        AuthDAO authDAO = new MemoryAuthDAO();
+        UserDAO userDAO = new SQLUserDAO();
+        GameDAO gameDAO = new SQLGameDAO();
+        AuthDAO authDAO = new SQLAuthDAO();
 
         LoginService loginService = new LoginService(userDAO, authDAO);
         RegisterService registerService = new RegisterService(userDAO,loginService);
