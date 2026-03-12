@@ -65,7 +65,7 @@ public class SQLAuthDAO implements AuthDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
+            throw new ResponseException(500, String.format("Error: Unable to read data: %s", e.getMessage()));
         }
         return null;
     }
@@ -90,7 +90,7 @@ public class SQLAuthDAO implements AuthDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw new ResponseException(499, String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new ResponseException(500, String.format("Error: Unable to configure database: %s", ex.getMessage()));
         }
     }
 
@@ -107,7 +107,7 @@ public class SQLAuthDAO implements AuthDAO {
                 ps.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new ResponseException(411, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new ResponseException(500, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 }

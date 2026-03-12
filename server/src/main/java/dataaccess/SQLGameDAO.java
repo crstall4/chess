@@ -59,7 +59,7 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new ResponseException(500, String.format("Error retrieving users: %s", e.getMessage()));
+            throw new ResponseException(500, String.format("Error: retrieving users: %s", e.getMessage()));
         }
         return games;
     }
@@ -77,7 +77,7 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new ResponseException(500, String.format("Error retrieving users: %s", e.getMessage()));
+            throw new ResponseException(500, String.format("Error: retrieving users: %s", e.getMessage()));
         }
         return null;
     }
@@ -133,7 +133,7 @@ public class SQLGameDAO implements GameDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw new ResponseException(499, String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new ResponseException(500, String.format("Error: Unable to configure database: %s", ex.getMessage()));
         }
     }
 
@@ -150,7 +150,7 @@ public class SQLGameDAO implements GameDAO {
                 ps.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new ResponseException(411, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new ResponseException(500, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 
@@ -174,7 +174,7 @@ public class SQLGameDAO implements GameDAO {
                 return 0;
             }
         } catch (SQLException e) {
-            throw new ResponseException(411, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new ResponseException(500, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 

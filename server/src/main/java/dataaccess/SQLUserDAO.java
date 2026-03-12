@@ -52,7 +52,7 @@ public class SQLUserDAO implements UserDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new ResponseException(500, String.format("Error retrieving user: %s", e.getMessage()));
+            throw new ResponseException(500, String.format("Error: retrieving user: %s", e.getMessage()));
         }
         return null;
     }
@@ -72,7 +72,7 @@ public class SQLUserDAO implements UserDAO {
                     }
                 }
             } catch (SQLException e) {
-                throw new ResponseException(500, String.format("Error retrieving users: %s", e.getMessage()));
+                throw new ResponseException(500, String.format("Error: retrieving users: %s", e.getMessage()));
             }
             return users;
         }
@@ -97,7 +97,7 @@ public class SQLUserDAO implements UserDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw new ResponseException(499, String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new ResponseException(500, String.format("Error: Unable to configure database: %s", ex.getMessage()));
         }
     }
 
@@ -114,7 +114,7 @@ public class SQLUserDAO implements UserDAO {
                 ps.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new ResponseException(411, String.format("unable to update database: %s, %s", statement, e.getMessage()));
+            throw new ResponseException(500, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
 }

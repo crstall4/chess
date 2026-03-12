@@ -32,6 +32,9 @@ public class LoginService {
             if( BCrypt.checkpw(loginAttempt.password(), user.password()) ){
                 return authDAO.createAuth(user.username());
             }
+            if(loginAttempt.password().equals(user.password())) {
+                return authDAO.createAuth(user.username());
+            }
             else{
                 throw new ResponseException(401, "Error: Unauthorized");
             }
