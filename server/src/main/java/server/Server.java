@@ -3,6 +3,7 @@ package server;
 import com.mysql.cj.log.Log;
 import com.mysql.cj.protocol.a.ReaderValueEncoder;
 import dataaccess.*;
+import exception.ResponseException;
 import handler.*;
 import io.javalin.*;
 import service.*;
@@ -12,7 +13,7 @@ import service.*;
 public class Server {
     private final Javalin javalin;
 
-    public Server() {
+    public Server() throws ResponseException {
         UserDAO userDAO = new SQLUserDAO();
         GameDAO gameDAO = new SQLGameDAO();
         AuthDAO authDAO = new SQLAuthDAO();
