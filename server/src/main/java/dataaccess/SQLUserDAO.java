@@ -97,7 +97,7 @@ public class SQLUserDAO implements UserDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw new ResponseException(411, String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new ResponseException(499, String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
 

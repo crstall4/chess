@@ -26,6 +26,9 @@ public class LoginService {
         }
         try {
             UserData user = userDAO.getUserData(loginAttempt.username());
+            if(user == null){
+                throw new ResponseException(401, "Error: Unauthorized");
+            }
             if( BCrypt.checkpw(loginAttempt.password(), user.password()) ){
                 return authDAO.createAuth(user.username());
             }

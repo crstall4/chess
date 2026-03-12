@@ -33,23 +33,41 @@ public class SQLAuthDAO implements AuthDAO {
     }
 
     @Override
-    public void deleteAuthData(String token) throws ResponseException{
-
+    public void deleteAuthData(String token) throws ResponseException {
+        confirmAuth(token);
+        String statement = "DELETE FROM auth WHERE authToken = ?";
+        executeUpdate(statement, token);
     }
 
     @Override
-    public void confirmAuth(String token) throws ResponseException{
-
+    public void confirmAuth(String token) throws ResponseException {
+        if (getUsername(token) == null) {
+            throw new ResponseException(401, "Error: Unauthorized. that auth token didnt exist");
+        }
     }
 
     @Override
     public void clear() throws ResponseException {
-
+        String statement = "TRUNCATE TABLE auth";
+        executeUpdate(statement);
     }
 
     @Override
     public String getUsername(String token) throws ResponseException {
-        return "hi";
+        String statement = "SELECT username FROM auth WHERE authToken = ?";
+        try (Connection conn = DatabaseManager.getConnection()) {
+            try (var ps = conn.prepareStatement(statement)) {
+                ps.setString(1, token);
+                try (var rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        return rs.getString("username");
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            throw new ResponseException(500, String.format("Unable to read data: %s", e.getMessage()));
+        }
+        return null;
     }
 
     private final String[] createStatements = {
@@ -72,7 +90,7 @@ public class SQLAuthDAO implements AuthDAO {
                 }
             }
         } catch (SQLException ex) {
-            throw new ResponseException(411, String.format("Unable to configure database: %s", ex.getMessage()));
+            throw new ResponseException(499, String.format("Unable to configure database: %s", ex.getMessage()));
         }
     }
 
