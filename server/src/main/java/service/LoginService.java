@@ -7,6 +7,7 @@ import exception.ResponseException;
 import model.AuthData;
 import model.UserData;
 import org.mindrot.jbcrypt.BCrypt;
+import server.Server;
 
 import java.util.Objects;
 
@@ -24,22 +25,19 @@ public class LoginService {
         if(loginAttempt.username() == null || loginAttempt.password() == null){
             throw new ResponseException(400, "Error: Bad Request. Username, password, and email fields all must be filled out.");
         }
-        try {
-            UserData user = userDAO.getUserData(loginAttempt.username());
+
+        UserData user = userDAO.getUserData(loginAttempt.username());
+
             if(user == null){
                 throw new ResponseException(401, "Error: Unauthorized");
             }
-            if( BCrypt.checkpw(loginAttempt.password(), user.password()) ){
+            if( Server.useSQL && BCrypt.checkpw(loginAttempt.password(), user.password()) ){
                 return authDAO.createAuth(user.username());
             }
-            if(loginAttempt.password().equals(user.password())) {
+            if(!Server.useSQL && loginAttempt.password().equals(user.password())) {
                 return authDAO.createAuth(user.username());
             }
-            else{
-                throw new ResponseException(401, "Error: Unauthorized");
-            }
-        } catch (ResponseException e) {
-            throw new ResponseException(e.getStatusCode(), "Error: Unauthorized. HERE!");
-        }
+            throw new ResponseException(401, "Error: Unauthorized");
+            
     }
 }

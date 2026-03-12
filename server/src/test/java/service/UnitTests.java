@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static server.Server.useSQL;
 
 class UnitTests {
     private static final Logger LOG = LoggerFactory.getLogger(UnitTests.class);
@@ -35,9 +36,24 @@ class UnitTests {
     JoinGameService joinGameService;
 
     UnitTests() throws ResponseException {
-        userDAO = new SQLUserDAO();
-        gameDAO = new SQLGameDAO();
-        authDAO = new SQLAuthDAO();
+        UserDAO userDAO;
+        AuthDAO authDAO;
+        GameDAO gameDAO;
+        try {
+            if (useSQL) {
+                userDAO = new SQLUserDAO();
+                gameDAO = new SQLGameDAO();
+                authDAO = new SQLAuthDAO();
+            } else {
+                userDAO = new MemoryUserDAO();
+                gameDAO = new MemoryGameDAO();
+                authDAO = new MemoryAuthDAO();
+            }
+        } catch(Exception ignored) {
+            userDAO = null;
+            gameDAO = null;
+            authDAO = null;
+        }
 
         testService = new UserService(userDAO, authDAO, gameDAO);
         loginService = new LoginService(userDAO, authDAO);

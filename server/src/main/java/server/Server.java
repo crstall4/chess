@@ -12,15 +12,22 @@ import service.*;
 
 public class Server {
     private final Javalin javalin;
+    public static boolean useSQL = true;
 
     public Server() {
         UserDAO userDAO;
         AuthDAO authDAO;
         GameDAO gameDAO;
         try {
-            userDAO = new SQLUserDAO();
-            gameDAO = new SQLGameDAO();
-            authDAO = new SQLAuthDAO();
+            if(useSQL) {
+                userDAO = new SQLUserDAO();
+                gameDAO = new SQLGameDAO();
+                authDAO = new SQLAuthDAO();
+            }else{
+                userDAO = new MemoryUserDAO();
+                gameDAO = new MemoryGameDAO();
+                authDAO = new MemoryAuthDAO();
+            }
         }
         catch(Exception ignored) {
             userDAO = null;

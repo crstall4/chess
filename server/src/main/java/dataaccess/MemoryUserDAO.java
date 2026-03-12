@@ -30,17 +30,7 @@ public class MemoryUserDAO implements UserDAO {
 
     @Override
     public UserData getUserData(String username) throws ResponseException{
-        try{
-            UserData user = users.get(username.hashCode());
-            if(user == null){
-                throw new ResponseException(401, "Error: Unauthorized");
-            }else{
-                return user;
-            }
-        }
-        catch(Exception e){
-            throw new ResponseException(401, "Error: Unauthorized");
-        }
+        return users.get(username.hashCode());
     }
 
     @Override
