@@ -27,20 +27,20 @@ public class SQLUserDAO implements UserDAO {
         String hashedPassword = BCrypt.hashpw(user.password(), BCrypt.gensalt());
         UserData newUser = new UserData(user.username(), hashedPassword, user.email());
         String userData = new Gson().toJson(newUser);
-        String statement = "INSERT INTO user (username, data) VALUES (?, ?)";
+        String statement = "INSERT INTO users (username, data) VALUES (?, ?)";
         executeUpdate(statement, user.username(), userData);
         return newUser;
     }
 
     @Override
     public void clear() throws ResponseException {
-        String statement = "TRUNCATE TABLE user";
+        String statement = "TRUNCATE TABLE users";
         executeUpdate(statement);
     }
 
     @Override
     public UserData getUserData(String username) throws ResponseException {
-        String statement = "SELECT data FROM user WHERE username = ?";
+        String statement = "SELECT data FROM users WHERE username = ?";
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
@@ -60,7 +60,7 @@ public class SQLUserDAO implements UserDAO {
     @Override
     public HashMap<Integer, UserData> getUsers() throws ResponseException{
             HashMap<Integer, UserData> users = new HashMap<>();
-            String statement = "SELECT data FROM user";
+            String statement = "SELECT data FROM users";
             try (Connection conn = DatabaseManager.getConnection()) {
                 try (var ps = conn.prepareStatement(statement)) {
                     try (var rs = ps.executeQuery()) {
@@ -79,7 +79,7 @@ public class SQLUserDAO implements UserDAO {
 
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  user (
+            CREATE TABLE IF NOT EXISTS users (
               username varchar(256) NOT NULL,
               data LONGTEXT NOT NULL,
               PRIMARY KEY (username)
