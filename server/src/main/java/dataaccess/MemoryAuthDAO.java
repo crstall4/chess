@@ -23,6 +23,8 @@ public class MemoryAuthDAO implements AuthDAO {
         authTokens.remove(token);
     }
 
+
+
     @Override
     public void confirmAuth(String token) throws ResponseException{
         if(!authTokens.containsKey(token)){

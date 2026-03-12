@@ -59,8 +59,23 @@ public class SQLUserDAO implements UserDAO {
 
     @Override
     public HashMap<Integer, UserData> getUsers() throws ResponseException{
-        return new HashMap<Integer, UserData>();
-    }
+            HashMap<Integer, UserData> users = new HashMap<>();
+            String statement = "SELECT data FROM user";
+            try (Connection conn = DatabaseManager.getConnection()) {
+                try (var ps = conn.prepareStatement(statement)) {
+                    try (var rs = ps.executeQuery()) {
+                        int index = 1;
+                        while (rs.next()) {
+                            String json = rs.getString("data");
+                            users.put(index++, new Gson().fromJson(json, UserData.class));
+                        }
+                    }
+                }
+            } catch (SQLException e) {
+                throw new ResponseException(500, String.format("Error retrieving users: %s", e.getMessage()));
+            }
+            return users;
+        }
 
     private final String[] createStatements = {
             """
@@ -86,7 +101,7 @@ public class SQLUserDAO implements UserDAO {
         }
     }
 
-    private int executeUpdate(String statement, Object... params) throws ResponseException {
+    private void executeUpdate(String statement, Object... params) throws ResponseException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
                 for (int i = 0; i < params.length; i++) {
@@ -97,18 +112,9 @@ public class SQLUserDAO implements UserDAO {
                     else if (param == null) ps.setNull(i + 1, NULL);
                 }
                 ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
             }
         } catch (SQLException e) {
             throw new ResponseException(411, String.format("unable to update database: %s, %s", statement, e.getMessage()));
         }
     }
-
-
 }
