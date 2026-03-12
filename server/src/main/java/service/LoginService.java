@@ -39,7 +39,7 @@ public class LoginService {
                 throw new ResponseException(401, "Error: Unauthorized");
             }
         } catch (ResponseException e) {
-            throw new ResponseException(401, "Error: Unauthorized");
+            throw new ResponseException(e.getStatusCode(), "Error: Unauthorized. HERE!");
         }
     }
 }
