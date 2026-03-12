@@ -23,6 +23,7 @@ public class RegisterService {
         if(user.username() == null || user.password() == null || user.email() == null){
             throw new ResponseException(400, "Error: Bad Request. Username, password, and email fields all must be filled out.");
         }
-        return loginService.loginUser(userDAO.createUser(user));
+        userDAO.createUser(user);
+        return loginService.loginUser(user);
     }
 }

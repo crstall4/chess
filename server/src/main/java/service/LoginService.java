@@ -24,7 +24,7 @@ public class LoginService {
             throw new ResponseException(400, "Error: Bad Request. Username, password, and email fields all must be filled out.");
         }
         try {
-            UserData user = userDAO.getUserData(loginAttempt);
+            UserData user = userDAO.getUserData(loginAttempt.username());
             if(Objects.equals(loginAttempt.password(), user.password())){
                 return authDAO.createAuth(user.username());
             }

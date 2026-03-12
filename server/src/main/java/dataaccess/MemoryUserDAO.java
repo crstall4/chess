@@ -29,9 +29,9 @@ public class MemoryUserDAO implements UserDAO {
     }
 
     @Override
-    public UserData getUserData(UserData logonAttempt) throws ResponseException{
+    public UserData getUserData(String username) throws ResponseException{
         try{
-            UserData user = users.get(logonAttempt.username().hashCode());
+            UserData user = users.get(username.hashCode());
             if(user == null){
                 throw new ResponseException(401, "Error: Unauthorized");
             }else{

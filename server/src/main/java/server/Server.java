@@ -13,11 +13,20 @@ import service.*;
 public class Server {
     private final Javalin javalin;
 
-    public Server() throws ResponseException {
-        UserDAO userDAO = new SQLUserDAO();
-        GameDAO gameDAO = new SQLGameDAO();
-        AuthDAO authDAO = new SQLAuthDAO();
-
+    public Server() {
+        UserDAO userDAO;
+        AuthDAO authDAO;
+        GameDAO gameDAO;
+        try {
+            userDAO = new SQLUserDAO();
+            gameDAO = new SQLGameDAO();
+            authDAO = new SQLAuthDAO();
+        }
+        catch(Exception ignored) {
+            userDAO = null;
+            gameDAO = null;
+            authDAO = null;
+        }
         LoginService loginService = new LoginService(userDAO, authDAO);
         RegisterService registerService = new RegisterService(userDAO,loginService);
         LogoutService logoutService = new LogoutService(authDAO);

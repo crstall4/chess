@@ -12,7 +12,7 @@ public interface UserDAO {
 
     UserData createUser(UserData user) throws ResponseException;
 
-    UserData getUserData(UserData user) throws ResponseException;
+    UserData getUserData(String username) throws ResponseException;
 
     HashMap<Integer, UserData> getUsers() throws ResponseException;
 }
