@@ -32,11 +32,11 @@ public class SQLGameDAO implements GameDAO {
 
     @Override
     public GameData createGame(GameData game) throws ResponseException {
-        int fakeid = new Random().nextInt(10000) + 10001;
+        int fakeid = -1;
         GameData fakeGame = new GameData(fakeid, null, null, game.gameName(), new ChessGame());
         String gameJson = new Gson().toJson(fakeGame);
-        String statement = "INSERT INTO games (gameID, data) VALUES (?, ?)";
-        int gameID = executeUpdateWithInt(statement, fakeid, gameJson);
+        String statement = "INSERT INTO games (data) VALUES (?)";
+        int gameID = executeUpdateWithInt(statement, gameJson);
         GameData finalGame = new GameData(gameID, null, null, game.gameName(), fakeGame.game());
         String finalJson = new Gson().toJson(finalGame);
         String updateStatement = "UPDATE games SET data = ? WHERE gameID = ?";

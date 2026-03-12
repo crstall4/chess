@@ -20,19 +20,34 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UnitTests {
     private static final Logger LOG = LoggerFactory.getLogger(UnitTests.class);
-    UserDAO userDAO = new MemoryUserDAO();
-    GameDAO gameDAO = new MemoryGameDAO();
-    AuthDAO authDAO = new MemoryAuthDAO();
+    UserDAO userDAO;
+    GameDAO gameDAO;
+    AuthDAO authDAO;
 
-    UserService testService = new UserService(userDAO, authDAO, gameDAO);
+    UserService testService;
 
-    LoginService loginService = new LoginService(userDAO, authDAO);
-    RegisterService registerService = new RegisterService(userDAO,loginService);
-    LogoutService logoutService = new LogoutService(authDAO);
-    ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
-    CreateGameService createGameService = new CreateGameService(gameDAO,authDAO);
-    ListGamesService listGamesService = new ListGamesService(gameDAO,authDAO);
-    JoinGameService joinGameService = new JoinGameService(gameDAO,authDAO);
+    LoginService loginService;
+    RegisterService registerService;
+    LogoutService logoutService;
+    ClearService clearService;
+    CreateGameService createGameService;
+    ListGamesService listGamesService;
+    JoinGameService joinGameService;
+
+    UnitTests() throws ResponseException {
+        userDAO = new SQLUserDAO();
+        gameDAO = new SQLGameDAO();
+        authDAO = new SQLAuthDAO();
+
+        testService = new UserService(userDAO, authDAO, gameDAO);
+        loginService = new LoginService(userDAO, authDAO);
+        registerService = new RegisterService(userDAO, loginService);
+        logoutService = new LogoutService(authDAO);
+        clearService = new ClearService(userDAO, authDAO, gameDAO);
+        createGameService = new CreateGameService(gameDAO, authDAO);
+        listGamesService = new ListGamesService(gameDAO, authDAO);
+        joinGameService = new JoinGameService(gameDAO, authDAO);
+    }
 
     @BeforeEach
     void clear() throws ResponseException {

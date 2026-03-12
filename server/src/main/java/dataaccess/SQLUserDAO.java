@@ -64,10 +64,10 @@ public class SQLUserDAO implements UserDAO {
             try (Connection conn = DatabaseManager.getConnection()) {
                 try (var ps = conn.prepareStatement(statement)) {
                     try (var rs = ps.executeQuery()) {
-                        int index = 1;
                         while (rs.next()) {
                             String json = rs.getString("data");
-                            users.put(index++, new Gson().fromJson(json, UserData.class));
+                            UserData tempUser = new Gson().fromJson(json, UserData.class);
+                            users.put(tempUser.username().hashCode(), tempUser);
                         }
                     }
                 }
