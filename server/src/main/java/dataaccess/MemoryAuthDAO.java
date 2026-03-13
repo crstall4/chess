@@ -12,6 +12,9 @@ public class MemoryAuthDAO implements AuthDAO {
 
     @Override
     public AuthData createAuth(String username) throws ResponseException {
+        if(username == null){
+            throw new ResponseException(400, "Error: Bad username");
+        }
         AuthData authData = new AuthData(UUID.randomUUID().toString(), username);
         authTokens.put(authData.authToken(), authData.username());
         return authData;

@@ -41,9 +41,7 @@ public class SQLAuthDAO implements AuthDAO {
 
     @Override
     public void confirmAuth(String token) throws ResponseException {
-        if (getUsername(token) == null) {
-            throw new ResponseException(401, "Error: Unauthorized. that auth token didnt exist");
-        }
+        getUsername(token);
     }
 
     @Override
@@ -67,7 +65,7 @@ public class SQLAuthDAO implements AuthDAO {
         } catch (SQLException e) {
             throw new ResponseException(500, String.format("Error: Unable to read data: %s", e.getMessage()));
         }
-        return null;
+        throw new ResponseException(401, "Error: Unauthorized. that auth token didnt exist");
     }
 
     private final String[] createStatements = {
