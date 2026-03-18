@@ -2,11 +2,16 @@ package dataaccess;
 
 import exception.ResponseException;
 import model.AuthData;
+import model.GameData;
 import model.UserData;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 
+import chess.ChessGame;
+
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.HashMap;
 
 class AuthDAOTests {
 
@@ -134,5 +139,101 @@ class AuthDAOTests {
         authdb.clear();
 
         assertThrows(ResponseException.class, () -> authdb.getUsername("clayton"));
+    }
+
+
+    //GAMEDAO TESTS BELOW
+
+        //create a game and then get the list of games to make sure it was created.
+    @ParameterizedTest
+    @ValueSource(classes = {SQLAuthDAO.class, MemoryAuthDAO.class})
+    void createGamePositive(Class<? extends AuthDAO> dbClass) throws ResponseException {
+        Object[] set = getDataAccess(dbClass);
+        GameDAO gamedb = (GameDAO) set[2];
+
+        GameData created = gamedb.createGame(new GameData(0, null, null, "first", new ChessGame()));
+
+        assertEquals("first", created.gameName());
+        assertNull(created.whiteUsername());
+        assertNull(created.blackUsername());
+    }
+
+    //create a game that is just a null game, meaning it should error out.
+    @ParameterizedTest
+    @ValueSource(classes = {SQLAuthDAO.class, MemoryAuthDAO.class})
+    void createGameNegative(Class<? extends AuthDAO> dbClass) throws ResponseException {
+        Object[] set = getDataAccess(dbClass);
+        GameDAO gamedb = (GameDAO) set[2];
+
+        assertThrows(NullPointerException.class, () -> gamedb.createGame(null));
+    }
+
+    //create 2 games and then make sure the list of games has both of them.
+    @ParameterizedTest
+    @ValueSource(classes = {SQLAuthDAO.class, MemoryAuthDAO.class})
+    void listGamesPositive(Class<? extends AuthDAO> dbClass) throws ResponseException {
+        Object[] set = getDataAccess(dbClass);
+        GameDAO gamedb = (GameDAO) set[2];
+
+        gamedb.createGame(new GameData(0, null, null, "gameoneeee", new ChessGame()));
+        gamedb.createGame(new GameData(0, null, null, "gametwo", new ChessGame()));
+
+        HashMap<Integer, GameData> games = gamedb.listGames();
+        assertEquals(2, games.size());
+    }
+
+    //get the list of games when we haven't created any
+    //service class does authentication, so it should be impossible for this to fail. thats why i just had it be empty for the negative case.
+    @ParameterizedTest
+    @ValueSource(classes = {SQLAuthDAO.class, MemoryAuthDAO.class})
+    void listGamesNegative(Class<? extends AuthDAO> dbClass) throws ResponseException {
+        Object[] set = getDataAccess(dbClass);
+        GameDAO gamedb = (GameDAO) set[2];
+
+        HashMap<Integer, GameData> games = gamedb.listGames();
+        assertEquals(0, games.size());
+    }
+
+    //create game and join it
+    @ParameterizedTest
+    @ValueSource(classes = {SQLAuthDAO.class, MemoryAuthDAO.class})
+    void joinGamePositive(Class<? extends AuthDAO> dbClass) throws ResponseException {
+        Object[] set = getDataAccess(dbClass);
+        GameDAO gamedb = (GameDAO) set[2];
+
+        GameData created = gamedb.createGame(new GameData(0, null, null, "game1", new ChessGame()));
+        gamedb.joinGame("WHITE", created.gameID(), "clayton");
+
+        GameData updated = gamedb.listGames().get(created.gameID());
+        assertNotNull(updated);
+        assertEquals("clayton", updated.whiteUsername());
+        assertNull(updated.blackUsername());
+    }
+
+    //try to join game with bad color
+    @ParameterizedTest
+    @ValueSource(classes = {SQLAuthDAO.class, MemoryAuthDAO.class})
+    void joinGameNegative(Class<? extends AuthDAO> dbClass) throws ResponseException {
+        Object[] set = getDataAccess(dbClass);
+        GameDAO gamedb = (GameDAO) set[2];
+
+        GameData created = gamedb.createGame(new GameData(0, null, null, "bad-color", new ChessGame()));
+
+        assertThrows(ResponseException.class, () -> gamedb.joinGame("BLUE", created.gameID(), "clayton"));
+    }
+
+    //clear it all out baby
+    @ParameterizedTest
+    @ValueSource(classes = {SQLAuthDAO.class, MemoryAuthDAO.class})
+    void clearPositive(Class<? extends AuthDAO> dbClass) throws ResponseException {
+        Object[] set = getDataAccess(dbClass);
+        GameDAO gamedb = (GameDAO) set[2];
+
+        gamedb.createGame(new GameData(0, null, null, "one", new ChessGame()));
+        gamedb.createGame(new GameData(0, null, null, "two", new ChessGame()));
+
+        gamedb.clear();
+
+        assertEquals(0, gamedb.listGames().size());
     }
 }
