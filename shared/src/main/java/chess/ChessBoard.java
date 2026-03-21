@@ -107,7 +107,7 @@ public class ChessBoard {
                     output.append("|");
                 }
                 else{
-                    output.append(PIECE_TO_CHAR_MAP.get(piece.getPieceType()));
+                    output.append(piece.toString());
                     output.append("|");
                 }
             }

@@ -95,4 +95,28 @@ public class ChessPiece {
     public static ChessPiece deepcopy(ChessPiece piece){
         return new ChessPiece(piece.pieceColor,piece.type);
     }
+
+    @Override
+    public String toString() {
+        if (type == PieceType.KING) {
+            return pieceColor == ChessGame.TeamColor.WHITE ? "♔" : "♚";
+        }
+        if (type == PieceType.QUEEN) {
+            return pieceColor == ChessGame.TeamColor.WHITE ? "♕" : "♛";
+        }
+        if (type == PieceType.ROOK) {
+            return pieceColor == ChessGame.TeamColor.WHITE ? "♖" : "♜";
+        }
+        if (type == PieceType.BISHOP) {
+            return pieceColor == ChessGame.TeamColor.WHITE ? "♗" : "♝";
+        }
+        if (type == PieceType.KNIGHT) {
+            return pieceColor == ChessGame.TeamColor.WHITE ? "♘" : "♞";
+        }
+        if (type == PieceType.PAWN) {
+            return pieceColor == ChessGame.TeamColor.WHITE ? "♙" : "♟";
+        }
+        return "";
+    }
+
 }
