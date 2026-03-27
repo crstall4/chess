@@ -17,12 +17,12 @@ class AuthDAOTests {
 
     private record DataAccessSet(AuthDAO authDAO, UserDAO userDAO) {}
 
-    private Object[] getDataAccess(Class<? extends AuthDAO> databaseClass) throws ResponseException {
+    private Object[] getDataAccess(Class<?> databaseClass) throws ResponseException {
         AuthDAO authdb;
         UserDAO userdb;
         GameDAO gamedb;
 
-        if (databaseClass.equals(SQLAuthDAO.class)) {
+        if (databaseClass.equals(SQLAuthDAO.class) || databaseClass.equals(SQLUserDAO.class) || databaseClass.equals(SQLGameDAO.class)) {
             authdb = new SQLAuthDAO();
             userdb = new SQLUserDAO();
             gamedb = new SQLGameDAO();
@@ -144,7 +144,7 @@ class AuthDAOTests {
 
     //GAMEDAO TESTS BELOW
 
-        //create a game and then get the list of games to make sure it was created.
+    //create a game and then get the list of games to make sure it was created.
     @ParameterizedTest
     @ValueSource(classes = {SQLAuthDAO.class, MemoryAuthDAO.class})
     void createGamePositive(Class<? extends AuthDAO> dbClass) throws ResponseException {
@@ -235,5 +235,83 @@ class AuthDAOTests {
         gamedb.clear();
 
         assertEquals(0, gamedb.listGames().size());
+    }
+
+
+    //USERDAO TESTS BELOW
+
+    //create a user and get their data to make sure that it all worked.
+    @ParameterizedTest
+    @ValueSource(classes = {SQLUserDAO.class, MemoryUserDAO.class})
+    void createUserPositive(Class<? extends UserDAO> dbClass) throws ResponseException {
+        Object[] set = getDataAccess(dbClass);
+        UserDAO db = (UserDAO) set[1];
+        UserData user = new UserData("brian", "password", "brian@gmail.com");
+
+        UserData createdUser = db.createUser(user);
+
+        assertNotNull(createdUser);
+        assertEquals("brian", createdUser.username());
+
+        UserData retrieved = db.getUserData("brian");
+        assertNotNull(retrieved);
+        assertEquals("brian", retrieved.username());
+    }
+
+    //create the same user twice
+    @ParameterizedTest
+    @ValueSource(classes = {SQLUserDAO.class, MemoryUserDAO.class})
+    void createUserNegative(Class<? extends UserDAO> dbClass) throws ResponseException {
+        UserDAO db = (UserDAO) getDataAccess(dbClass)[1];
+        UserData user = new UserData("brian", "password", "brian@gmail.com");
+        db.createUser(user);
+        assertThrows(ResponseException.class, () -> db.createUser(user));
+    }
+
+    //create user and get their data.
+    @ParameterizedTest
+    @ValueSource(classes = {SQLUserDAO.class, MemoryUserDAO.class})
+    void getUserDataPositive(Class<? extends UserDAO> dbClass) throws ResponseException {
+        UserDAO db = (UserDAO) getDataAccess(dbClass)[1];
+        db.createUser(new UserData("brian", "password", "brian@gmail.com"));
+
+        UserData user = db.getUserData("brian");
+        assertNotNull(user);
+        assertEquals("brian", user.username());
+    }
+
+    //get a user's data that we didn't create
+    @ParameterizedTest
+    @ValueSource(classes = {SQLUserDAO.class, MemoryUserDAO.class})
+    void getUserDataNegative(Class<? extends UserDAO> dbClass) throws ResponseException {
+        UserDAO db = (UserDAO) getDataAccess(dbClass)[1];
+
+        UserData user = db.getUserData("nonExistent");
+        assertNull(user);
+    }
+
+    //make sure that clear works
+    @ParameterizedTest
+    @ValueSource(classes = {SQLUserDAO.class, MemoryUserDAO.class})
+    void clearUserTest(Class<? extends UserDAO> dbClass) throws ResponseException {
+        UserDAO db = (UserDAO) getDataAccess(dbClass)[1];
+        db.createUser(new UserData("brian", "password", "brian@gmail.com"));
+        db.createUser(new UserData("jeff", "password123", "jeff@gmail.com"));
+
+        db.clear();
+
+        assertNull(db.getUserData("brian"));
+    }
+
+    //test getting all users. add 2 make sure there really is 2.
+    @ParameterizedTest
+    @ValueSource(classes = {SQLUserDAO.class, MemoryUserDAO.class})
+    void getUsersPositive(Class<? extends UserDAO> dbClass) throws ResponseException {
+        UserDAO db = (UserDAO) getDataAccess(dbClass)[1];
+        db.createUser(new UserData("brian", "password", "brian@gmail.com"));
+        db.createUser(new UserData("jeff", "password123", "jeff@gmail.com"));
+
+        HashMap<Integer, UserData> users = db.getUsers();
+        assertEquals(2, users.size());
     }
 }
