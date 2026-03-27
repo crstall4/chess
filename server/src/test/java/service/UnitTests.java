@@ -1,29 +1,19 @@
 package service;
 
-import com.mysql.cj.log.Log;
 import dataaccess.*;
 import exception.ResponseException;
-
 import model.GameData;
 import model.UserData;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import passoff.model.TestCreateRequest;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import server.Server;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static server.Server.useSQL;
 
 class UnitTests {
     private static final Logger LOG = LoggerFactory.getLogger(UnitTests.class);
-    UserDAO userDAO;
-    GameDAO gameDAO;
-    AuthDAO authDAO;
 
     UserService testService;
 
@@ -36,24 +26,10 @@ class UnitTests {
     JoinGameService joinGameService;
 
     UnitTests() throws ResponseException {
-        UserDAO userDAO;
-        AuthDAO authDAO;
-        GameDAO gameDAO;
-        try {
-            if (useSQL) {
-                userDAO = new SQLUserDAO();
-                gameDAO = new SQLGameDAO();
-                authDAO = new SQLAuthDAO();
-            } else {
-                userDAO = new MemoryUserDAO();
-                gameDAO = new MemoryGameDAO();
-                authDAO = new MemoryAuthDAO();
-            }
-        } catch(Exception ignored) {
-            userDAO = null;
-            gameDAO = null;
-            authDAO = null;
-        }
+        Object[] daos = Server.createDAOs();
+        UserDAO userDAO = (UserDAO) daos[0];
+        AuthDAO authDAO = (AuthDAO) daos[1];
+        GameDAO gameDAO = (GameDAO) daos[2];
 
         testService = new UserService(userDAO, authDAO, gameDAO);
         loginService = new LoginService(userDAO, authDAO);

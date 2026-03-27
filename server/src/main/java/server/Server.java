@@ -14,7 +14,7 @@ public class Server {
     private final Javalin javalin;
     public static boolean useSQL = true;
 
-    public Server() {
+    public static Object[] createDAOs() {
         UserDAO userDAO;
         AuthDAO authDAO;
         GameDAO gameDAO;
@@ -28,12 +28,19 @@ public class Server {
                 gameDAO = new MemoryGameDAO();
                 authDAO = new MemoryAuthDAO();
             }
-        }
-        catch(Exception ignored) {
+        } catch(Exception ignored) {
             userDAO = null;
             gameDAO = null;
             authDAO = null;
         }
+        return new Object[]{userDAO, authDAO, gameDAO};
+    }
+
+    public Server() {
+        Object[] daos = createDAOs();
+        UserDAO userDAO = (UserDAO) daos[0];
+        AuthDAO authDAO = (AuthDAO) daos[1];
+        GameDAO gameDAO = (GameDAO) daos[2];
         LoginService loginService = new LoginService(userDAO, authDAO);
         RegisterService registerService = new RegisterService(userDAO,loginService);
         LogoutService logoutService = new LogoutService(authDAO);

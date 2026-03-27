@@ -23,13 +23,7 @@ public class SQLHelper {
     public static void executeUpdate(String statement, Object... params) throws ResponseException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) { ps.setString(i + 1, p); }
-                    else if (param instanceof Integer p) { ps.setInt(i + 1, p); }
-                    else if (param instanceof UserData p) { ps.setString(i + 1, p.toString()); }
-                    else if (param == null) { ps.setNull(i + 1, Types.NULL); }
-                }
+                setParams(ps, params);
                 ps.executeUpdate();
             }
         } catch (SQLException e) {
@@ -40,13 +34,7 @@ public class SQLHelper {
     public static int executeUpdateWithInt(String statement, Object... params) throws ResponseException {
         try (Connection conn = DatabaseManager.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(statement, Statement.RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) { ps.setString(i + 1, p); }
-                    else if (param instanceof Integer p) { ps.setInt(i + 1, p); }
-                    else if (param instanceof UserData p) { ps.setString(i + 1, p.toString()); }
-                    else if (param == null) { ps.setNull(i + 1, Types.NULL); }
-                }
+                setParams(ps, params);
                 ps.executeUpdate();
 
                 ResultSet rs = ps.getGeneratedKeys();
@@ -58,6 +46,16 @@ public class SQLHelper {
             }
         } catch (SQLException e) {
             throw new ResponseException(500, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
+        }
+    }
+
+    private static void setParams(PreparedStatement ps, Object[] params) throws SQLException {
+        for (int i = 0; i < params.length; i++) {
+            Object param = params[i];
+            if (param instanceof String p) { ps.setString(i + 1, p); }
+            else if (param instanceof Integer p) { ps.setInt(i + 1, p); }
+            else if (param instanceof UserData p) { ps.setString(i + 1, p.toString()); }
+            else if (param == null) { ps.setNull(i + 1, Types.NULL); }
         }
     }
 }
