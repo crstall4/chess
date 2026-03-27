@@ -20,14 +20,24 @@ import static java.sql.Types.NULL;
 
 public class SQLGameDAO implements GameDAO {
 
+    private final String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS games (
+              gameID int NOT NULL AUTO_INCREMENT,
+              data LONGTEXT NOT NULL,
+              PRIMARY KEY (gameID)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+    };
+
     public SQLGameDAO() throws ResponseException{
-        configureDatabase();
+        SQLHelper.configureDatabase(createStatements);
     }
 
     @Override
     public void clear() throws ResponseException {
         String statement = "TRUNCATE TABLE games";
-        executeUpdate(statement);
+        SQLHelper.executeUpdate(statement);
     }
 
     @Override
@@ -36,11 +46,11 @@ public class SQLGameDAO implements GameDAO {
         GameData fakeGame = new GameData(fakeid, null, null, game.gameName(), new ChessGame());
         String gameJson = new Gson().toJson(fakeGame);
         String statement = "INSERT INTO games (data) VALUES (?)";
-        int gameID = executeUpdateWithInt(statement, gameJson);
+        int gameID = SQLHelper.executeUpdateWithInt(statement, gameJson);
         GameData finalGame = new GameData(gameID, null, null, game.gameName(), fakeGame.game());
         String finalJson = new Gson().toJson(finalGame);
         String updateStatement = "UPDATE games SET data = ? WHERE gameID = ?";
-        executeUpdate(updateStatement, finalJson, gameID);
+        SQLHelper.executeUpdate(updateStatement, finalJson, gameID);
         return finalGame;
     }
 
@@ -98,7 +108,7 @@ public class SQLGameDAO implements GameDAO {
             GameData newGame = new GameData(game.gameID(),username,game.blackUsername(),game.gameName(),game.game());
             String newJson = new Gson().toJson(newGame);
             String updateStatement = "UPDATE games SET data = ? WHERE gameID = ?";
-            executeUpdate(updateStatement, newJson, newGame.gameID());
+            SQLHelper.executeUpdate(updateStatement, newJson, newGame.gameID());
         }
         if(playerColor.equals("BLACK")){
             if(game.blackUsername() != null){
@@ -107,75 +117,13 @@ public class SQLGameDAO implements GameDAO {
             GameData newGame = new GameData(game.gameID(),game.whiteUsername(),username,game.gameName(),game.game());
             String newJson = new Gson().toJson(newGame);
             String updateStatement = "UPDATE games SET data = ? WHERE gameID = ?";
-            executeUpdate(updateStatement, newJson, newGame.gameID());
+            SQLHelper.executeUpdate(updateStatement, newJson, newGame.gameID());
         }
     }
 
 
 
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS games (
-              gameID int NOT NULL AUTO_INCREMENT,
-              data LONGTEXT NOT NULL,
-              PRIMARY KEY (gameID)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
-    };
 
 
-    private void configureDatabase() throws ResponseException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new ResponseException(500, String.format("Error: Unable to configure database: %s", ex.getMessage()));
-        }
-    }
-
-    private void executeUpdate(String statement, Object... params) throws ResponseException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) { ps.setString(i + 1, p); }
-                    else if (param instanceof Integer p) { ps.setInt(i + 1, p); }
-                    else if (param instanceof UserData p) { ps.setString(i + 1, p.toString()); }
-                    else if (param == null) { ps.setNull(i + 1, NULL); }
-                }
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new ResponseException(500, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
-        }
-    }
-
-    private int executeUpdateWithInt(String statement, Object... params) throws ResponseException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) { ps.setString(i + 1, p); }
-                    else if (param instanceof Integer p) { ps.setInt(i + 1, p); }
-                    else if (param instanceof UserData p) { ps.setString(i + 1, p.toString()); }
-                    else if (param == null) { ps.setNull(i + 1, NULL); }
-                }
-                ps.executeUpdate();
-
-                ResultSet rs = ps.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-
-                return 0;
-            }
-        } catch (SQLException e) {
-            throw new ResponseException(500, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
-        }
-    }
 
 }

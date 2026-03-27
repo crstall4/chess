@@ -18,9 +18,19 @@ import static java.sql.Types.NULL;
 public class SQLAuthDAO implements AuthDAO {
     final private HashMap<String, String> authTokens = new HashMap<>();
 
-    public SQLAuthDAO() throws ResponseException{
-        configureDatabase();
+    private final String[] createStatements = {
+        """
+        CREATE TABLE IF NOT EXISTS auth (
+            authToken varchar(256) NOT NULL,
+            username varchar(256) NOT NULL,
+            PRIMARY KEY (authToken)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+        """
+    };
 
+
+    public SQLAuthDAO() throws ResponseException{
+        SQLHelper.configureDatabase(createStatements);
     }
 
     @Override
@@ -28,7 +38,7 @@ public class SQLAuthDAO implements AuthDAO {
         String token = UUID.randomUUID().toString();
 
         String statement = "INSERT INTO auth (authToken, username) VALUES (?, ?)";
-        executeUpdate(statement, token, username);
+        SQLHelper.executeUpdate(statement, token, username);
         return new AuthData(token, username);
     }
 
@@ -36,7 +46,7 @@ public class SQLAuthDAO implements AuthDAO {
     public void deleteAuthData(String token) throws ResponseException {
         confirmAuth(token);
         String statement = "DELETE FROM auth WHERE authToken = ?";
-        executeUpdate(statement, token);
+        SQLHelper.executeUpdate(statement, token);
     }
 
     @Override
@@ -47,7 +57,7 @@ public class SQLAuthDAO implements AuthDAO {
     @Override
     public void clear() throws ResponseException {
         String statement = "TRUNCATE TABLE auth";
-        executeUpdate(statement);
+        SQLHelper.executeUpdate(statement);
     }
 
     @Override
@@ -68,44 +78,6 @@ public class SQLAuthDAO implements AuthDAO {
         throw new ResponseException(401, "Error: Unauthorized. that auth token didnt exist");
     }
 
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS auth (
-              authToken varchar(256) NOT NULL,
-              username varchar(256) NOT NULL,
-              PRIMARY KEY (authToken)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
-    };
 
 
-    private void configureDatabase() throws ResponseException {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException ex) {
-            throw new ResponseException(500, String.format("Error: Unable to configure database: %s", ex.getMessage()));
-        }
-    }
-
-    private void executeUpdate(String statement, Object... params) throws ResponseException {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            try (PreparedStatement ps = conn.prepareStatement(statement, RETURN_GENERATED_KEYS)) {
-                for (int i = 0; i < params.length; i++) {
-                    Object param = params[i];
-                    if (param instanceof String p) { ps.setString(i + 1, p); }
-                    else if (param instanceof Integer p) { ps.setInt(i + 1, p); }
-                    else if (param instanceof UserData p) { ps.setString(i + 1, p.toString()); }
-                    else if (param == null) { ps.setNull(i + 1, NULL); }
-                }
-                ps.executeUpdate();
-            }
-        } catch (SQLException e) {
-            throw new ResponseException(500, String.format("Error: unable to update database: %s, %s", statement, e.getMessage()));
-        }
-    }
 }
