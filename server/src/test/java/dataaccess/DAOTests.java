@@ -13,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.HashMap;
 
-class AuthDAOTests {
+class DAOTests {
 
     private record DataAccessSet(AuthDAO authDAO, UserDAO userDAO) {}
 
