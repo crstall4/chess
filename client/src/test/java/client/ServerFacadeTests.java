@@ -2,8 +2,8 @@ package client;
 
 import org.junit.jupiter.api.*;
 import server.Server;
-import server.ServerFacade;
 import exception.ResponseException;
+import facade.ServerFacade;
 
 public class ServerFacadeTests {
 

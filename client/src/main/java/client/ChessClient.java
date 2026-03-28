@@ -9,7 +9,7 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import model.*;
 import exception.ResponseException;
-import server.ServerFacade;
+import facade.ServerFacade;
 
 import static ui.EscapeSequences.*;
 
@@ -193,20 +193,7 @@ public class ChessClient {
             for(int row = 8; row >= 1; row--){
                 System.out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + row + " ");
                 for(int col = 1; col <= 8; col++){
-                    boolean light = (row + col) % 2 == 1;
-                    if(light){
-                        System.out.print(SET_BG_COLOR_LIGHT_GREY);
-                    }
-                    else{
-                        System.out.print(SET_BG_COLOR_DARK_GREY);
-                    }
-                    ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                    if(piece != null){
-                        System.out.print(getPieceSymbol(piece));
-                    }
-                    else{
-                        System.out.print(EMPTY);
-                    }
+                    printSquare(board, row, col);
                 }
                 System.out.println(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + row + " " + RESET_BG_COLOR);
             }
@@ -217,24 +204,28 @@ public class ChessClient {
             for(int row = 1; row <= 8; row++){
                 System.out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + row + " ");
                 for(int col = 8; col >= 1; col--){
-                    boolean light = (row + col) % 2 == 1;
-                    if(light){
-                        System.out.print(SET_BG_COLOR_LIGHT_GREY);
-                    }
-                    else{
-                        System.out.print(SET_BG_COLOR_DARK_GREY);
-                    }
-                    ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-                    if(piece != null){
-                        System.out.print(getPieceSymbol(piece));
-                    }
-                    else{
-                        System.out.print(EMPTY);
-                    }
+                    printSquare(board, row, col);
                 }
                 System.out.println(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + row + " " + RESET_BG_COLOR);
             }
             System.out.println(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + "    h  g  f  e  d  c  b  a    " + RESET_BG_COLOR);
+        }
+    }
+
+    private void printSquare(ChessBoard board, int row, int col) {
+        boolean light = (row + col) % 2 == 1;
+        if(light){
+            System.out.print(SET_BG_COLOR_LIGHT_GREY);
+        }
+        else{
+            System.out.print(SET_BG_COLOR_DARK_GREY);
+        }
+        ChessPiece piece = board.getPiece(new ChessPosition(row, col));
+        if(piece != null){
+            System.out.print(getPieceSymbol(piece));
+        }
+        else{
+            System.out.print(EMPTY);
         }
     }
 
