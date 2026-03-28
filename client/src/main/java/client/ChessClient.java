@@ -92,6 +92,7 @@ public class ChessClient {
             authToken = auth.authToken();
             loggedIn = true;
             user = auth.username();
+            lastGamesList = server.listGames(authToken);
             return String.format("Logged in as %s.", auth.username());
         }
         throw new ResponseException(400, "Expected: <username> <password>");
@@ -101,6 +102,7 @@ public class ChessClient {
     public String createGame(String[] params) throws ResponseException {
         if (params.length >= 1) {
             server.createGame(params[0], authToken);
+            lastGamesList = server.listGames(authToken);
             return String.format("Game '%s' created.", params[0]);
         }
         throw new ResponseException(400, "Expected: <game name>");
@@ -137,6 +139,7 @@ public class ChessClient {
             authToken = auth.authToken();
             loggedIn = true;
             user = auth.username();
+            lastGamesList = server.listGames(authToken);
             return String.format("Registered and logged in as %s.", auth.username());
         }
         throw new ResponseException(400, "Expected: <username> <password> <email>");
@@ -155,6 +158,7 @@ public class ChessClient {
     }
 
     public String join(String[] params) throws ResponseException {
+        lastGamesList = server.listGames(authToken);
         if (params.length >= 2 && params[0].matches("\\d+")) {
             int index = Integer.parseInt(params[0]) - 1;
             if (index < 0 || index >= lastGamesList.length) {
