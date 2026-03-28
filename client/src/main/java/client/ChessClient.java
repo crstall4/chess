@@ -6,17 +6,20 @@ import java.util.Scanner;
 import com.google.gson.Gson;
 import model.*;
 import exception.ResponseException;
-import static ui.EscapeSequences.*;
+import server.ServerFacade;
 
+import static ui.EscapeSequences.*;
 
 public class ChessClient {
 
-    String serverUrl;
     boolean loggedIn;
+    private String authToken;
+    private final ServerFacade server;
 
-    public ChessClient(String url) {
-        serverUrl = url;
+
+    public ChessClient(String serverUrl) {
         loggedIn = false;
+        server = new ServerFacade(serverUrl);
     }
 
     public void run() {
@@ -31,10 +34,10 @@ public class ChessClient {
 
             try {
                 result = eval(line);
-                System.out.print(SET_TEXT_COLOR_BLUE + result);
+                System.out.println(SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
                 var msg = e.toString();
-                System.out.print(msg);
+                System.out.println(msg);
             }
         }
         System.out.println();
@@ -55,7 +58,7 @@ public class ChessClient {
             String cmd = (tokens.length > 0) ? tokens[0] : "help";
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
-                case "signin" -> signIn();
+                case "login" -> login(params);
                 case "signout" -> signOut();
                 case "quit" -> "quit";
                 default -> help();
@@ -65,15 +68,15 @@ public class ChessClient {
         }
     }
 
-//    public String signIn(String... params) throws ResponseException {
-//        if (params.length >= 1) {
-//            state = State.SIGNEDIN;
-//            visitorName = String.join("-", params);
-//            ws.enterPetShop(visitorName);
-//            return String.format("You signed in as %s.", visitorName);
-//        }
-//        throw new ResponseException(ResponseException.Code.ClientError, "Expected: <yourname>");
-//    }
+    public String login(String[] params) throws ResponseException {
+        if (params.length >= 2) {
+            var auth = server.login(params[0], params[1]);
+            authToken = auth.authToken();
+            loggedIn = true;
+            return String.format("Logged in as %s.", auth.username());
+        }
+        throw new ResponseException(400, "Expected: <username> <password>");
+    }
 
 
 
@@ -86,6 +89,11 @@ public class ChessClient {
     public String signOut() throws ResponseException {
         loggedIn = false;
         return "Signed out";
+    }
+
+    public String register(){
+
+        return "";
     }
 
     public String help() {
