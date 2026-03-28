@@ -46,6 +46,14 @@ public class ServerFacade {
         return handleResponse(response, ListGamesResponse.class).games();
     }
 
+    public void join(int gameID, String color, String authToken) throws ResponseException {
+        record JoinRequest(int gameID, String playerColor) {}
+        var body = new JoinRequest(gameID, color.toUpperCase());
+        var request = buildRequest("PUT", "/game", body, authToken);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
+
     public void logout(String authToken) throws ResponseException {
         var request = buildRequest("DELETE", "/session", null, authToken);
         var response = sendRequest(request);

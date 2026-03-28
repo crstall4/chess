@@ -16,6 +16,7 @@ public class ChessClient {
     private String authToken;
     private final ServerFacade server;
     private String user;
+    private GameData[] lastGamesList = new GameData[0];
 
 
     public ChessClient(String serverUrl) {
@@ -63,6 +64,7 @@ public class ChessClient {
                 case "create" -> createGame(params);
                 case "quit" -> "quit";
                 case "list" -> listGames(params);
+                case "join" -> join(params);
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -91,16 +93,18 @@ public class ChessClient {
     }
 
     public String listGames(String[] params) throws ResponseException {
-        var games = server.listGames(authToken);
-        if(games.length == 0){
+        lastGamesList = server.listGames(authToken);
+        if (lastGamesList.length == 0) {
             return "No games found.";
         }
-        StringBuilder output = new StringBuilder("");
-        for (int i = 0; i < games.length; i++) {
-            var g = games[i];
+        StringBuilder output = new StringBuilder();
+        for (int i = 0; i < lastGamesList.length; i++) {
+            var g = lastGamesList[i];
             String white = g.whiteUsername() != null ? g.whiteUsername() : "OPEN";
             String black = g.blackUsername() != null ? g.blackUsername() : "OPEN";
-            output.append("Game #").append(i + 1).append(": ").append(g.gameName()).append("\n - white: ").append(white).append("\n - black: ").append(black).append("\n\n");
+            output.append(i + 1).append(". ").append(g.gameName())
+                  .append("\n - white: ").append(white)
+                  .append("\n - black: ").append(black).append("\n\n");
         }
         return output.toString();
     }
@@ -123,6 +127,21 @@ public class ChessClient {
         }
         throw new ResponseException(400, "Expected: <username> <password> <email>");
     }
+
+    public String join(String[] params) throws ResponseException {
+        if (params.length >= 2 && params[0].matches("\\d+")) {
+            int index = Integer.parseInt(params[0]) - 1;
+            if (index < 0 || index >= lastGamesList.length) {
+                throw new ResponseException(400, "Invalid game number. Use 'list' to see available games.");
+            }
+            int gameID = lastGamesList[index].gameID();
+            server.join(gameID, params[1], authToken);
+            return String.format("Joined game #%s as %s.", params[0], params[1].toUpperCase());
+        }
+        throw new ResponseException(400, "Expected: <game number> <WHITE|BLACK>");
+    }
+
+
 
     public String help() {
         if(!loggedIn){
