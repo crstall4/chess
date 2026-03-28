@@ -15,11 +15,13 @@ public class ChessClient {
     boolean loggedIn;
     private String authToken;
     private final ServerFacade server;
+    private String user;
 
 
     public ChessClient(String serverUrl) {
         loggedIn = false;
         server = new ServerFacade(serverUrl);
+        user = "LOGGED_OUT";
     }
 
     public void run() {
@@ -45,10 +47,7 @@ public class ChessClient {
 
 
     private void printPrompt() {
-        if(!loggedIn){
-            System.out.print(RESET_TEXT_COLOR + "[LOGGED_OUT] ");
-        }
-        System.out.print(">>> " + SET_TEXT_COLOR_GREEN);
+        System.out.print(RESET_TEXT_COLOR + "[" + user + "] >>> " + SET_TEXT_COLOR_GREEN);
     }
 
 
@@ -59,6 +58,7 @@ public class ChessClient {
             String[] params = Arrays.copyOfRange(tokens, 1, tokens.length);
             return switch (cmd) {
                 case "login" -> login(params);
+                case "register" -> register(params);
                 case "signout" -> signOut();
                 case "quit" -> "quit";
                 default -> help();
@@ -73,27 +73,28 @@ public class ChessClient {
             var auth = server.login(params[0], params[1]);
             authToken = auth.authToken();
             loggedIn = true;
+            user = auth.username();
             return String.format("Logged in as %s.", auth.username());
         }
         throw new ResponseException(400, "Expected: <username> <password>");
     }
 
 
-
-
-    public String signIn(){
-        loggedIn = true;
-        return "Signed in";
-    }
-
     public String signOut() throws ResponseException {
         loggedIn = false;
+        user = "LOGGED_OUT";
         return "Signed out";
     }
 
-    public String register(){
-
-        return "";
+    public String register(String[] params) throws ResponseException {
+        if (params.length >= 3) {
+            var auth = server.register(params[0], params[1], params[2]);
+            authToken = auth.authToken();
+            loggedIn = true;
+            user = auth.username();
+            return String.format("Registered and logged in as %s.", auth.username());
+        }
+        throw new ResponseException(400, "Expected: <username> <password> <email>");
     }
 
     public String help() {

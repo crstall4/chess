@@ -18,16 +18,19 @@ public class ServerFacade {
         serverUrl = url;
     }
 
+    public AuthData register(String username, String password, String email) throws ResponseException {
+        var body = new UserData(username, password, email);
+        var request = buildRequest("POST", "/user", body);
+        var response = sendRequest(request);
+        return handleResponse(response, AuthData.class);
+    }
+
     public AuthData login(String username, String password) throws ResponseException {
         UserData loginAttempt = new UserData(username, password, null);
         var request = buildRequest("POST", "/session", loginAttempt);
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
-
-
-
-
 
 
 
