@@ -102,7 +102,7 @@ public class ChessClient {
             var g = lastGamesList[i];
             String white = g.whiteUsername() != null ? g.whiteUsername() : "OPEN";
             String black = g.blackUsername() != null ? g.blackUsername() : "OPEN";
-            output.append(i + 1).append(". ").append(g.gameName())
+            output.append("Game #" + (i + 1)).append(": ").append(g.gameName())
                   .append("\n - white: ").append(white)
                   .append("\n - black: ").append(black).append("\n\n");
         }
