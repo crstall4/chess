@@ -38,8 +38,25 @@ public class ServerFacadeTests {
     @Test
     void registerFails() throws ResponseException {
         facade.register("testuser", "password", "test@gmail.com");
-        Assertions.assertThrows(ResponseException.class, () ->
-                facade.register("testuser", "password", "test@gmail.com"));
+        Assertions.assertThrows(ResponseException.class, () -> facade.register("testuser", "password", "test@gmail.com"));
+    }
+
+    @Test
+    void loginSuccess() throws ResponseException {
+        var registerAuth = facade.register("testuser", "password", "test@gmail.com");
+        facade.logout(registerAuth.authToken());
+        var loginAuth = facade.login("testuser", "password");
+
+        Assertions.assertNotNull(loginAuth.authToken());
+        Assertions.assertEquals("testuser", loginAuth.username());
+    }
+
+    @Test
+    void loginFails() throws ResponseException {
+        var registerAuth = facade.register("testuser", "password", "test@gmail.com");
+        facade.logout(registerAuth.authToken());
+        Assertions.assertThrows(ResponseException.class, () -> facade.login("testuser", "wrong_password"));
+
     }
 
 }
