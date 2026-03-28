@@ -24,7 +24,7 @@ public class RegisterService {
             throw new ResponseException(400, "Error: Bad Request. Username, password, and email fields all must be filled out.");
         }
         if(userDAO.getUserData(user.username()) != null){
-            throw new ResponseException(403, "Error: already taken");
+            throw new ResponseException(403, "Error: The username " + user.username() + " is already taken");
         }
         userDAO.createUser(user);
         return loginService.loginUser(user);

@@ -20,26 +20,35 @@ public class ServerFacade {
 
     public AuthData register(String username, String password, String email) throws ResponseException {
         var body = new UserData(username, password, email);
-        var request = buildRequest("POST", "/user", body);
+        var request = buildRequest("POST", "/user", body, null);
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
 
     public AuthData login(String username, String password) throws ResponseException {
         UserData loginAttempt = new UserData(username, password, null);
-        var request = buildRequest("POST", "/session", loginAttempt);
+        var request = buildRequest("POST", "/session", loginAttempt, null);
         var response = sendRequest(request);
         return handleResponse(response, AuthData.class);
     }
 
 
 
-    private HttpRequest buildRequest(String method, String path, Object body) {
+    public void logout(String authToken) throws ResponseException {
+        var request = buildRequest("DELETE", "/session", null, authToken);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
+
+    private HttpRequest buildRequest(String method, String path, Object body, String authToken) {
         var request = HttpRequest.newBuilder()
                 .uri(URI.create(serverUrl + path))
                 .method(method, makeRequestBody(body));
         if (body != null) {
             request.setHeader("Content-Type", "application/json");
+        }
+        if (authToken != null) {
+            request.setHeader("Authorization", authToken);
         }
         return request.build();
     }
@@ -63,7 +72,9 @@ public class ServerFacade {
     private <T> T handleResponse(HttpResponse<String> response, Class<T> responseClass) throws ResponseException {
         var status = response.statusCode();
         if (!isSuccessful(status)) {
-            throw new ResponseException(status, response.body());
+            var parsed = new Gson().fromJson(response.body(), java.util.Map.class);
+            var message = (parsed != null && parsed.containsKey("message")) ? (String) parsed.get("message") : response.body();
+            throw new ResponseException(status, message);
         }
         if (responseClass != null) {
             return new Gson().fromJson(response.body(), responseClass);

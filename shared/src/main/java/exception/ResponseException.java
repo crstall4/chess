@@ -10,7 +10,6 @@ public class ResponseException extends Exception {
         super(message);
         this.statusCode = statusCode;
 
-        //
     }
 
     public String toJson() {

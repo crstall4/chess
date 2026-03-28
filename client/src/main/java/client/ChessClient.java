@@ -59,7 +59,7 @@ public class ChessClient {
             return switch (cmd) {
                 case "login" -> login(params);
                 case "register" -> register(params);
-                case "signout" -> signOut();
+                case "logout" -> logout();
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -80,10 +80,12 @@ public class ChessClient {
     }
 
 
-    public String signOut() throws ResponseException {
+    public String logout() throws ResponseException {
+        server.logout(authToken);
+        authToken = null;
         loggedIn = false;
         user = "LOGGED_OUT";
-        return "Signed out";
+        return "Logged out.";
     }
 
     public String register(String[] params) throws ResponseException {
