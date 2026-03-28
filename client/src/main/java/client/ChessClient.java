@@ -62,6 +62,7 @@ public class ChessClient {
                 case "logout" -> logout();
                 case "create" -> createGame(params);
                 case "quit" -> "quit";
+                case "list" -> listGames(params);
                 default -> help();
             };
         } catch (ResponseException ex) {
@@ -87,6 +88,21 @@ public class ChessClient {
             return String.format("Game '%s' created.", params[0]);
         }
         throw new ResponseException(400, "Expected: <game name>");
+    }
+
+    public String listGames(String[] params) throws ResponseException {
+        var games = server.listGames(authToken);
+        if(games.length == 0){
+            return "No games found.";
+        }
+        StringBuilder output = new StringBuilder("");
+        for (int i = 0; i < games.length; i++) {
+            var g = games[i];
+            String white = g.whiteUsername() != null ? g.whiteUsername() : "OPEN";
+            String black = g.blackUsername() != null ? g.blackUsername() : "OPEN";
+            output.append("Game #").append(i + 1).append(": ").append(g.gameName()).append("\n - white: ").append(white).append("\n - black: ").append(black).append("\n\n");
+        }
+        return output.toString();
     }
 
     public String logout() throws ResponseException {

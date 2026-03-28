@@ -39,6 +39,13 @@ public class ServerFacade {
         handleResponse(response, null);
     }
 
+    public GameData[] listGames(String authToken) throws ResponseException {
+        record ListGamesResponse(GameData[] games) {}
+        var request = buildRequest("GET", "/game", null, authToken);
+        var response = sendRequest(request);
+        return handleResponse(response, ListGamesResponse.class).games();
+    }
+
     public void logout(String authToken) throws ResponseException {
         var request = buildRequest("DELETE", "/session", null, authToken);
         var response = sendRequest(request);
