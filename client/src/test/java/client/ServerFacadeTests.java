@@ -56,7 +56,20 @@ public class ServerFacadeTests {
         var registerAuth = facade.register("testuser", "password", "test@gmail.com");
         facade.logout(registerAuth.authToken());
         Assertions.assertThrows(ResponseException.class, () -> facade.login("testuser", "wrong_password"));
+    }
 
+    @Test
+    void logoutSuccess() throws ResponseException {
+        var registerAuth = facade.register("testuser", "password", "test@gmail.com");
+        facade.logout(registerAuth.authToken());
+        Assertions.assertTrue(true); //passed if logout didnt error
+    }
+
+    @Test
+    void logoutFails() throws ResponseException {
+        var registerAuth = facade.register("testuser", "password", "test@gmail.com");
+        facade.logout(registerAuth.authToken());
+        Assertions.assertThrows(ResponseException.class, () -> facade.logout(registerAuth.authToken()));
     }
 
 }
