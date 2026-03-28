@@ -11,7 +11,6 @@ import static ui.EscapeSequences.*;
 
 public class ChessClient {
 
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(ChessClient.class);
     String serverUrl;
     boolean loggedIn;
 
