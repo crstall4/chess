@@ -44,7 +44,14 @@ public class ChessClient {
                 result = eval(line);
                 System.out.println(SET_TEXT_COLOR_BLUE + result);
             } catch (Throwable e) {
-                var msg = e.toString();
+                var msg = e.getMessage();
+                if(msg == null || msg.isBlank()){
+                    msg = "An unexpected error occurred.";
+                }
+                else{
+                    msg = "Error: " + msg;
+                }
+
                 System.out.println(msg);
             }
         }
