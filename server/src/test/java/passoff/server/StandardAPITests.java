@@ -474,7 +474,7 @@ public class StandardAPITests {
     }
 
     private void assertHttpUnauthorized(TestResult result) {
-        assertHttpError(result, HttpURLConnection.HTTP_UNAUTHORIZED, "Error: Unauthorized");
+        assertHttpError(result, HttpURLConnection.HTTP_UNAUTHORIZED, "Unauthorized");
     }
 
     private void assertHttpForbidden(TestResult result) {
