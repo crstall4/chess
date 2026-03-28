@@ -10,12 +10,12 @@ public class ClientMain {
             serverUrl = args[0];
         }
 
-//        try {
-//            new PetClient(serverUrl).run();
-//
-//        } catch (Throwable ex) {
-//            System.out.printf("Unable to start server: %s%n", ex.getMessage());
-//        }
+       try {
+           new ChessClient(serverUrl).run();
+
+       } catch (Throwable ex) {
+           System.out.printf("Unable to start server: %s%n", ex.getMessage());
+       }
 
         var piece = new ChessPiece(ChessGame.TeamColor.WHITE, ChessPiece.PieceType.PAWN);
         System.out.println("♕ 240 Chess Client: " + piece);
