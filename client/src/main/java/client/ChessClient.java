@@ -60,6 +60,7 @@ public class ChessClient {
                 case "login" -> login(params);
                 case "register" -> register(params);
                 case "logout" -> logout();
+                case "create" -> createGame(params);
                 case "quit" -> "quit";
                 default -> help();
             };
@@ -79,6 +80,14 @@ public class ChessClient {
         throw new ResponseException(400, "Expected: <username> <password>");
     }
 
+
+    public String createGame(String[] params) throws ResponseException {
+        if (params.length >= 1) {
+            server.createGame(params[0], authToken);
+            return String.format("Game '%s' created.", params[0]);
+        }
+        throw new ResponseException(400, "Expected: <game name>");
+    }
 
     public String logout() throws ResponseException {
         server.logout(authToken);

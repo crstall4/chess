@@ -32,7 +32,12 @@ public class ServerFacade {
         return handleResponse(response, AuthData.class);
     }
 
-
+    public void createGame(String gameName, String authToken) throws ResponseException {
+        var body = new GameData(0, null, null, gameName, null);
+        var request = buildRequest("POST", "/game", body, authToken);
+        var response = sendRequest(request);
+        handleResponse(response, null);
+    }
 
     public void logout(String authToken) throws ResponseException {
         var request = buildRequest("DELETE", "/session", null, authToken);
