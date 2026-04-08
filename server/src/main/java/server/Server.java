@@ -6,6 +6,7 @@ import dataaccess.*;
 import exception.ResponseException;
 import handler.*;
 import io.javalin.*;
+import server.websocket.WebSocketHandler;
 import service.*;
 import service.*;
 
@@ -58,6 +59,7 @@ public class Server {
         ListGamesHandler listGamesHandler = new ListGamesHandler(listGamesService);
         JoinGameHandler joinGameHandler = new JoinGameHandler(joinGameService);
 
+        WebSocketHandler webSocketHandler = new WebSocketHandler(gameDAO, authDAO);
 
         javalin = Javalin.create(config -> config.staticFiles.add("web"))
                 .post("/user", registerHandler::handle)
@@ -66,18 +68,12 @@ public class Server {
                 .delete("/session", logoutHandler::handle)
                 .post("/game", createGameHandler::handle)
                 .get("/game", listGamesHandler::handle)
-                .put("/game", joinGameHandler::handle);
-//        javalin = Javalin.create(config -> config.staticFiles.add("public"))
-//                .post("/pet", this::addPet)
-//                .get("/pet", this::listPets)
-//                .delete("/pet/{id}", this::deletePet)
-//                .delete("/pet", this::deleteAllPets)
-//                .exception(ResponseException.class, this::exceptionHandler)
-//                .ws("/ws", ws -> {
-//                    ws.onConnect(webSocketHandler);
-//                    ws.onMessage(webSocketHandler);
-//                    ws.onClose(webSocketHandler);
-//                });
+                .put("/game", joinGameHandler::handle)
+                .ws("/ws", ws -> {
+                    ws.onConnect(webSocketHandler);
+                    ws.onMessage(webSocketHandler);
+                    ws.onClose(webSocketHandler);
+                });
     }
 
     public int run(int desiredPort) {
