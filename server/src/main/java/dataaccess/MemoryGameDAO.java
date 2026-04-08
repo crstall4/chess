@@ -25,6 +25,11 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
+    public GameData getGame(int gameID) throws ResponseException {
+        return games.get(gameID);
+    }
+
+    @Override
     public HashMap<Integer, GameData> listGames() throws ResponseException{
         return games;
     }
