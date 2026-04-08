@@ -76,6 +76,7 @@ public class ChessClient {
                     case "login" -> login(params);
                     case "register" -> register(params);
                     case "quit" -> "quit";
+                    case "clear" -> clear();
                     default -> help();
                 };
             } else {
@@ -104,6 +105,11 @@ public class ChessClient {
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
+    }
+
+    public String clear() throws ResponseException {
+        server.clear();
+        return "Database cleared.";
     }
 
     public String doesNothing(String[] params) throws ResponseException {
@@ -177,6 +183,7 @@ public class ChessClient {
                 throw new ResponseException(400, "Invalid game number. Use 'list' to see available games.");
             }
             printBoard(fakeBoard, ChessGame.TeamColor.WHITE);
+            gameJoined = true;
             return String.format("Observing Game #%s", params[0]);
         }
         throw new ResponseException(400, "Expected: <game number>");
@@ -198,6 +205,7 @@ public class ChessClient {
             else{
                 printBoard(fakeBoard, ChessGame.TeamColor.BLACK);
             }
+            gameJoined = true;
             return String.format("Joined Game #%s as %s", params[0], params[1].toUpperCase());
         }
         throw new ResponseException(400, "Expected: <game number> <WHITE|BLACK>");
