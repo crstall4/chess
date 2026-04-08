@@ -72,6 +72,16 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.add(gameID, session);
             connections.sendToSession(session, new LoadGameMessage(gameData.game()));
 
+            if (username.equals(gameData.whiteUsername())) { 
+                connections.broadcast(gameID, session, new NotificationMessage(username + " joined as white player"));
+            }
+            else if (username.equals(gameData.blackUsername())) { 
+                connections.broadcast(gameID, session, new NotificationMessage(username + " joined as black player"));
+            }
+            else { 
+                connections.broadcast(gameID, session, new NotificationMessage(username + " is observing"));
+            }
+            
         } catch (ResponseException e) {
             connections.sendToSession(session, new ErrorMessage("Error: " + e.getMessage()));
         }
