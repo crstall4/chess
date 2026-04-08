@@ -43,7 +43,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
                 case CONNECT -> connect(ctx.session, command);
-                case MAKE_MOVE -> {}
+                case MAKE_MOVE -> makeMove(ctx.session, command);
                 case LEAVE -> {}
                 case RESIGN -> {}
             }
@@ -85,5 +85,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } catch (ResponseException e) {
             connections.sendToSession(session, new ErrorMessage("Error: " + e.getMessage()));
         }
+    }
+
+    private void makeMove(Session session, UserGameCommand command) throws IOException {
+
     }
 }

@@ -10,6 +10,8 @@ import chess.ChessPosition;
 import model.*;
 import exception.ResponseException;
 import facade.ServerFacade;
+import websocket.commands.UserGameCommand;
+import websocket.messages.*;
 
 import static ui.EscapeSequences.*;
 
@@ -19,14 +21,18 @@ public class ChessClient {
     boolean gameJoined;
     private String authToken;
     private final ServerFacade server;
+    private final String serverUrl;
     private String user;
     private GameData[] lastGamesList = new GameData[0];
-    
+    private WebSocketFacade ws;
+    private ChessGame.TeamColor myColor;
+
     ChessGame fakeBoard = new ChessGame();
 
 
     public ChessClient(String serverUrl) {
         loggedIn = false;
+        this.serverUrl = serverUrl;
         server = new ServerFacade(serverUrl);
         user = "LOGGED_OUT";
     }
@@ -182,7 +188,9 @@ public class ChessClient {
             if (index < 0 || index >= lastGamesList.length) {
                 throw new ResponseException(400, "Invalid game number. Use 'list' to see available games.");
             }
-            printBoard(fakeBoard, ChessGame.TeamColor.WHITE);
+            int gameID = lastGamesList[index].gameID();
+            myColor = ChessGame.TeamColor.WHITE;
+            connectWebSocket(gameID);
             gameJoined = true;
             return String.format("Observing Game #%s", params[0]);
         }
@@ -198,24 +206,45 @@ public class ChessClient {
             }
             int gameID = lastGamesList[index].gameID();
             server.join(gameID, params[1], authToken);
-
-            if(params[1].toUpperCase().equals("WHITE")){
-                printBoard(fakeBoard, ChessGame.TeamColor.WHITE);
-            }
-            else{
-                printBoard(fakeBoard, ChessGame.TeamColor.BLACK);
-            }
+            myColor = params[1].toUpperCase().equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            connectWebSocket(gameID);
             gameJoined = true;
             return String.format("Joined Game #%s as %s", params[0], params[1].toUpperCase());
         }
         throw new ResponseException(400, "Expected: <game number> <WHITE|BLACK>");
     }
 
+    private void connectWebSocket(int gameID) throws ResponseException {
+        try {
+            ws = new WebSocketFacade(serverUrl, this::onServerMessage);
+            ws.sendCommand(new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID));
+        } catch (Exception e) {
+            throw new ResponseException(500, "WebSocket connection failed: " + e.getMessage());
+        }
+    }
+
+    private void onServerMessage(ServerMessage message) {
+        switch (message.getServerMessageType()) {
+            case LOAD_GAME -> {
+                printBoard(((LoadGameMessage) message).game, myColor);
+                printPrompt();
+            }
+            case NOTIFICATION -> {
+                System.out.println("\n" + SET_TEXT_COLOR_YELLOW + ((NotificationMessage) message).message + RESET_TEXT_COLOR);
+                printPrompt();
+            }
+            case ERROR -> {
+                System.out.println("\n" + SET_TEXT_COLOR_RED + ((ErrorMessage) message).errorMessage + RESET_TEXT_COLOR);
+                printPrompt();
+            }
+        }
+    }
+
     public void printBoard(ChessGame game, ChessGame.TeamColor color) {
         ChessBoard board = game.getBoard();
 
         if(color == ChessGame.TeamColor.WHITE){
-            System.out.println(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + "    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR);
+            System.out.println(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + "\n    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR);
             for(int row = 8; row >= 1; row--){
                 System.out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + row + " ");
                 for(int col = 1; col <= 8; col++){
