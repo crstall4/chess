@@ -16,6 +16,7 @@ import static ui.EscapeSequences.*;
 public class ChessClient {
 
     boolean loggedIn;
+    boolean gameJoined;
     private String authToken;
     private final ServerFacade server;
     private String user;
@@ -78,20 +79,37 @@ public class ChessClient {
                     default -> help();
                 };
             } else {
-                return switch (cmd) {
-                    case "logout" -> logout();
-                    case "create" -> createGame(params);
-                    case "list" -> listGames(params);
-                    case "join" -> join(params);
-                    case "observe" -> observe(params);
-                    case "quit" -> "quit";
-                    default -> help();
-                };
+                if(!gameJoined){
+                    return switch (cmd) {
+                        case "logout" -> logout();
+                        case "create" -> createGame(params);
+                        case "list" -> listGames(params);
+                        case "join" -> join(params);
+                        case "observe" -> observe(params);
+                        case "quit" -> "quit";
+                        default -> help();
+                    };
+                }
+                else{
+                    return switch (cmd) {
+                        case "redraw" -> doesNothing(params);
+                        case "leave" -> doesNothing(params);
+                        case "move" -> doesNothing(params);
+                        case "resign" -> doesNothing(params);
+                        case "legal-moves" -> doesNothing(params);
+                        default -> help();
+                    };
+                }
             }
         } catch (ResponseException ex) {
             return ex.getMessage();
         }
     }
+
+    public String doesNothing(String[] params) throws ResponseException {
+        return "This command does nothing.";
+    }
+
 
     public String login(String[] params) throws ResponseException {
         if (params.length >= 2) {
@@ -249,7 +267,7 @@ public class ChessClient {
                 - help                                      Displays text informing the user what actions they can take
                 """;
         }
-        else{
+        else if (!gameJoined){
             return """
                     create <NAME>               Creates a game
                     list                        Lists all games
@@ -257,6 +275,16 @@ public class ChessClient {
                     observe <ID>                Observe a game
                     logout                      Logout of your account
                     quit                        Exits the program
+                    help                        Displays text informing the user what actions they can take
+                    """;
+        }
+        else {
+            return """
+                    redraw                      Redraws the chess board
+                    leave                       Leave the game and return to post-login menu
+                    move <FROM> <TO>            Make a move (example: move e2 e4)
+                    resign                      Resign from the game
+                    legal-moves <SQUARE>        Highlight legal moves for a piece (example: legal-moves e2)
                     help                        Displays text informing the user what actions they can take
                     """;
         }
