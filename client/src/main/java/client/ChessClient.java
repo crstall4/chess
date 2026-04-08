@@ -244,7 +244,7 @@ public class ChessClient {
         ChessBoard board = game.getBoard();
 
         if(color == ChessGame.TeamColor.WHITE){
-            System.out.println(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + "\n    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR);
+            System.out.println("\n" + SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + "    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR);
             for(int row = 8; row >= 1; row--){
                 System.out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + row + " ");
                 for(int col = 1; col <= 8; col++){
@@ -255,7 +255,7 @@ public class ChessClient {
             System.out.println(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + "    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR);
         }
         else{
-            System.out.println(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + "    h  g  f  e  d  c  b  a    " + RESET_BG_COLOR);
+            System.out.println("\n" + SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + "    h  g  f  e  d  c  b  a    " + RESET_BG_COLOR);
             for(int row = 1; row <= 8; row++){
                 System.out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + row + " ");
                 for(int col = 8; col >= 1; col--){
