@@ -93,6 +93,13 @@ public class SQLGameDAO implements GameDAO {
     }
 
     @Override
+    public void updateGame(GameData game) throws ResponseException {
+        String json = new Gson().toJson(game);
+        String statement = "UPDATE games SET data = ? WHERE gameID = ?";
+        SQLHelper.executeUpdate(statement, json, game.gameID());
+    }
+
+    @Override
     public void joinGame(String playerColor, int gameId, String username) throws ResponseException{
         GameData game = getGame(gameId);
         if(game == null){

@@ -1,5 +1,10 @@
 package server.websocket;
 
+import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.InvalidMoveException;
+
 import com.google.gson.Gson;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
@@ -88,6 +93,45 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void makeMove(Session session, UserGameCommand command) throws IOException {
+        try {
+            authDAO.confirmAuth(command.getAuthToken());
+            String username = authDAO.getUsername(command.getAuthToken());
+            int gameID = command.getGameID();
+            GameData gameData = gameDAO.getGame(gameID);
+            ChessMove move = command.getMove();
+            
+            //make sure the game exists
+            if (gameData == null) {
+                connections.sendToSession(session, new ErrorMessage("Error: Game not found"));
+                return;
+            }
 
+            ChessGame game = gameData.game();
+
+            //make sure it is the user's turn
+            if((game.getTeamTurn() == ChessGame.TeamColor.WHITE && username != gameData.whiteUsername()) || (game.getTeamTurn() == ChessGame.TeamColor.BLACK && username != gameData.blackUsername())){
+                connections.sendToSession(session, new ErrorMessage("Error: It is not your turn"));
+                return;
+            }
+
+            ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
+            String pieceName = piece.getPieceType().toString().toLowerCase();
+            String moveDesc = username + " moved their " + pieceName + " from " + move.getStartPosition() + " to " + move.getEndPosition();
+
+            //make sure the move is legal
+            try {
+                game.makeMove(move);
+            } catch (InvalidMoveException e) {
+                connections.sendToSession(session, new ErrorMessage("Error: Invalid move"));
+                return;
+            }
+
+            gameDAO.updateGame(gameData);
+            connections.broadcast(gameID, null, new LoadGameMessage(game));
+            connections.broadcast(gameID, session, new NotificationMessage(moveDesc));
+            
+        } catch (ResponseException e) {
+            connections.sendToSession(session, new ErrorMessage("Error: " + e.getMessage()));
+        }
     }
 }
