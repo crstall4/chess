@@ -5,6 +5,7 @@ import java.util.Scanner;
 
 import chess.ChessBoard;
 import chess.ChessGame;
+import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
 import model.*;
@@ -26,6 +27,7 @@ public class ChessClient {
     private GameData[] lastGamesList = new GameData[0];
     private WebSocketFacade ws;
     private ChessGame.TeamColor myColor;
+    private int currentGameID;
 
     ChessGame fakeBoard = new ChessGame();
 
@@ -101,7 +103,7 @@ public class ChessClient {
                     return switch (cmd) {
                         case "redraw" -> doesNothing(params);
                         case "leave" -> doesNothing(params);
-                        case "move" -> doesNothing(params);
+                        case "move" -> move(params);
                         case "resign" -> doesNothing(params);
                         case "legal-moves" -> doesNothing(params);
                         default -> help();
@@ -190,6 +192,7 @@ public class ChessClient {
             }
             int gameID = lastGamesList[index].gameID();
             myColor = ChessGame.TeamColor.WHITE;
+            currentGameID = gameID;
             connectWebSocket(gameID);
             gameJoined = true;
             return String.format("Observing Game #%s", params[0]);
@@ -207,6 +210,7 @@ public class ChessClient {
             int gameID = lastGamesList[index].gameID();
             server.join(gameID, params[1], authToken);
             myColor = params[1].toUpperCase().equals("WHITE") ? ChessGame.TeamColor.WHITE : ChessGame.TeamColor.BLACK;
+            currentGameID = gameID;
             connectWebSocket(gameID);
             gameJoined = true;
             return String.format("Joined Game #%s as %s", params[0], params[1].toUpperCase());
@@ -214,10 +218,35 @@ public class ChessClient {
         throw new ResponseException(400, "Expected: <game number> <WHITE|BLACK>");
     }
 
+    public String move(String[] params) throws ResponseException {
+        if (params.length < 2) {
+            throw new ResponseException(400, "Expected: move <FROM> <TO> (example: move e2 e4)");
+        }
+        ChessMove move = new ChessMove(parsePosition(params[0]), parsePosition(params[1]), null);
+        try {
+            ws.sendCommand(new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, currentGameID, move));
+        } catch (Exception e) {
+            throw new ResponseException(500, "Failed to send move: " + e.getMessage());
+        }
+        return "";
+    }
+
+    private ChessPosition parsePosition(String pos) throws ResponseException {
+        if (pos.length() != 2) {
+            throw new ResponseException(400, pos + " is an invalid position. Use format like e2.");
+        }
+        int col = pos.charAt(0) - 'a' + 1;
+        int row = pos.charAt(1) - '0';
+        if (row <= 0 || row >= 9 || col <= 0 || col >= 9) {
+            throw new ResponseException(400, "Position out of bounds: " + pos);
+        }
+        return new ChessPosition(row, col);
+    }
+
     private void connectWebSocket(int gameID) throws ResponseException {
         try {
             ws = new WebSocketFacade(serverUrl, this::onServerMessage);
-            ws.sendCommand(new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID));
+            ws.sendCommand(new UserGameCommand(UserGameCommand.CommandType.CONNECT, authToken, gameID, null));
         } catch (Exception e) {
             throw new ResponseException(500, "WebSocket connection failed: " + e.getMessage());
         }

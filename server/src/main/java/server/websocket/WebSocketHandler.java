@@ -24,6 +24,7 @@ import websocket.messages.NotificationMessage;
 
 
 import java.io.IOException;
+import java.util.Objects;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
@@ -109,7 +110,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             ChessGame game = gameData.game();
 
             //make sure it is the user's turn
-            if((game.getTeamTurn() == ChessGame.TeamColor.WHITE && username != gameData.whiteUsername()) || (game.getTeamTurn() == ChessGame.TeamColor.BLACK && username != gameData.blackUsername())){
+            if((game.getTeamTurn() == ChessGame.TeamColor.WHITE && !Objects.equals(username, gameData.whiteUsername())) || (game.getTeamTurn() == ChessGame.TeamColor.BLACK && !Objects.equals(username, gameData.blackUsername()))){
                 connections.sendToSession(session, new ErrorMessage("Error: It is not your turn"));
                 return;
             }
