@@ -10,9 +10,12 @@ import io.javalin.websocket.WsConnectContext;
 import io.javalin.websocket.WsConnectHandler;
 import io.javalin.websocket.WsMessageContext;
 import io.javalin.websocket.WsMessageHandler;
+import model.GameData;
 import org.eclipse.jetty.websocket.api.Session;
 import websocket.commands.UserGameCommand;
-
+import websocket.messages.ErrorMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 
 
 import java.io.IOException;
@@ -39,7 +42,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         try {
             UserGameCommand command = new Gson().fromJson(ctx.message(), UserGameCommand.class);
             switch (command.getCommandType()) {
-                case CONNECT -> {}
+                case CONNECT -> connect(ctx.session, command);
                 case MAKE_MOVE -> {}
                 case LEAVE -> {}
                 case RESIGN -> {}
@@ -54,4 +57,23 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
+    private void connect(Session session, UserGameCommand command) throws IOException {
+        try {
+            authDAO.confirmAuth(command.getAuthToken());
+            String username = authDAO.getUsername(command.getAuthToken());
+            int gameID = command.getGameID();
+            GameData gameData = gameDAO.getGame(gameID);
+
+            if (gameData == null) {
+                connections.sendToSession(session, new ErrorMessage("Error: Game not found"));
+                return;
+            }
+
+            connections.add(gameID, session);
+            connections.sendToSession(session, new LoadGameMessage(gameData.game()));
+
+        } catch (ResponseException e) {
+            connections.sendToSession(session, new ErrorMessage("Error: " + e.getMessage()));
+        }
+    }
 }
