@@ -152,6 +152,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 game.setGameOver(true);
                 gameDAO.updateGame(gameData);
                 connections.broadcast(gameID, null, new NotificationMessage("Stalemate! The game is a draw."));
+            } else if (game.isInCheck(nextTeam)) {
+                String checkedPlayer;
+                if (nextTeam == ChessGame.TeamColor.WHITE) {
+                    checkedPlayer = gameData.whiteUsername();
+                } else {
+                    checkedPlayer = gameData.blackUsername();
+                }
+                connections.broadcast(gameID, null, new NotificationMessage(checkedPlayer + " is in check."));
             }
 
         } catch (ResponseException e) {

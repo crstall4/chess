@@ -291,7 +291,7 @@ public class ChessClient {
                 printPrompt();
             }
             case NOTIFICATION -> {
-                System.out.println("\n" + SET_TEXT_COLOR_YELLOW + ((NotificationMessage) message).message + RESET_TEXT_COLOR);
+                System.out.println("\n" + SET_TEXT_COLOR_MAGENTA + ((NotificationMessage) message).message + RESET_TEXT_COLOR);
                 printPrompt();
             }
             case ERROR -> {
