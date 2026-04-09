@@ -123,9 +123,6 @@ public class ChessClient {
         return "Database cleared.";
     }
 
-    public String doesNothing(String[] params) throws ResponseException {
-        return "This command does nothing.";
-    }
 
 
     public String login(String[] params) throws ResponseException {
@@ -223,7 +220,7 @@ public class ChessClient {
 
     public String move(String[] params) throws ResponseException {
         if (params.length < 2) {
-            throw new ResponseException(400, "Expected: \nmove <FROM> <TO> (example: move e2 e4)\n OR\nmove <FROM> <TO> [PROMOTION] (example: move e7 e8 queen)");
+            throw new ResponseException(400, "Expected: move <FROM> <TO> [PROMOTION] (example: move e2 e4 OR move e7 e8 queen)");
         }
         ChessPiece.PieceType promotion = params.length >= 3 ? parsePromotion(params[2]) : null;
         ChessMove move = new ChessMove(parsePosition(params[0]), parsePosition(params[1]), promotion);

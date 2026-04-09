@@ -116,7 +116,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
 
             //make sure it is the user's turn
-            if((game.getTeamTurn() == ChessGame.TeamColor.WHITE && !Objects.equals(username, gameData.whiteUsername())) || (game.getTeamTurn() == ChessGame.TeamColor.BLACK && !Objects.equals(username, gameData.blackUsername()))){
+            boolean whiteTurnNotWhitePlayer = game.getTeamTurn() == ChessGame.TeamColor.WHITE && !Objects.equals(username, gameData.whiteUsername());
+            boolean blackTurnNotBlackPlayer = game.getTeamTurn() == ChessGame.TeamColor.BLACK && !Objects.equals(username, gameData.blackUsername());
+            if (whiteTurnNotWhitePlayer || blackTurnNotBlackPlayer) {
                 connections.sendToSession(session, new ErrorMessage("Error: It is not your turn"));
                 return;
             }
