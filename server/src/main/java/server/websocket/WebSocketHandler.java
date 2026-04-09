@@ -109,6 +109,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             ChessGame game = gameData.game();
 
+            //make sure the game is not over
+            if (game.isGameOver()) {
+                connections.sendToSession(session, new ErrorMessage("Error: The game is already over"));
+                return;
+            }
+
             //make sure it is the user's turn
             if((game.getTeamTurn() == ChessGame.TeamColor.WHITE && !Objects.equals(username, gameData.whiteUsername())) || (game.getTeamTurn() == ChessGame.TeamColor.BLACK && !Objects.equals(username, gameData.blackUsername()))){
                 connections.sendToSession(session, new ErrorMessage("Error: It is not your turn"));
@@ -130,7 +136,24 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             gameDAO.updateGame(gameData);
             connections.broadcast(gameID, null, new LoadGameMessage(game));
             connections.broadcast(gameID, session, new NotificationMessage(moveDesc));
-            
+
+            ChessGame.TeamColor nextTeam = game.getTeamTurn();
+            if (game.isInCheckmate(nextTeam)) {
+                String winner;
+                if (nextTeam == ChessGame.TeamColor.WHITE) {
+                    winner = gameData.blackUsername();
+                } else {
+                    winner = gameData.whiteUsername();
+                }
+                game.setGameOver(true);
+                gameDAO.updateGame(gameData);
+                connections.broadcast(gameID, null, new NotificationMessage("Checkmate! " + winner + " wins!"));
+            } else if (game.isInStalemate(nextTeam)) {
+                game.setGameOver(true);
+                gameDAO.updateGame(gameData);
+                connections.broadcast(gameID, null, new NotificationMessage("Stalemate! The game is a draw."));
+            }
+
         } catch (ResponseException e) {
             connections.sendToSession(session, new ErrorMessage("Error: " + e.getMessage()));
         }
