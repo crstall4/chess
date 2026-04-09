@@ -1,7 +1,10 @@
 package client;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Scanner;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import chess.ChessBoard;
 import chess.ChessGame;
@@ -29,7 +32,7 @@ public class ChessClient {
     private ChessGame.TeamColor myColor;
     private int currentGameID;
 
-    ChessGame fakeBoard = new ChessGame();
+    private ChessGame currentGame;
 
 
     public ChessClient(String serverUrl) {
@@ -105,7 +108,7 @@ public class ChessClient {
                         case "leave" -> leave(params);
                         case "move" -> move(params);
                         case "resign" -> resign(params);
-                        case "legal-moves" -> doesNothing(params);
+                        case "legal-moves" -> legalMoves(params);
                         default -> help();
                     };
                 }
@@ -275,7 +278,8 @@ public class ChessClient {
     private void onServerMessage(ServerMessage message) {
         switch (message.getServerMessageType()) {
             case LOAD_GAME -> {
-                printBoard(((LoadGameMessage) message).game, myColor);
+                currentGame = ((LoadGameMessage) message).game;
+                printBoard(currentGame, myColor);
                 printPrompt();
             }
             case NOTIFICATION -> {
@@ -290,25 +294,28 @@ public class ChessClient {
     }
 
     public void printBoard(ChessGame game, ChessGame.TeamColor color) {
+        printBoard(game, color, Set.of());
+    }
+
+    public void printBoard(ChessGame game, ChessGame.TeamColor color, Collection<ChessPosition> highlighted) {
         ChessBoard board = game.getBoard();
 
-        if(color == ChessGame.TeamColor.WHITE){
+        if (color == ChessGame.TeamColor.WHITE) {
             System.out.println("\n" + SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + "    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR);
-            for(int row = 8; row >= 1; row--){
+            for (int row = 8; row >= 1; row--) {
                 System.out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + row + " ");
-                for(int col = 1; col <= 8; col++){
-                    printSquare(board, row, col);
+                for (int col = 1; col <= 8; col++) {
+                    printSquare(board, row, col, highlighted.contains(new ChessPosition(row, col)));
                 }
                 System.out.println(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + row + " " + RESET_BG_COLOR);
             }
             System.out.println(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + "    a  b  c  d  e  f  g  h    " + RESET_BG_COLOR);
-        }
-        else{
+        } else {
             System.out.println("\n" + SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + "    h  g  f  e  d  c  b  a    " + RESET_BG_COLOR);
-            for(int row = 1; row <= 8; row++){
+            for (int row = 1; row <= 8; row++) {
                 System.out.print(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + row + " ");
-                for(int col = 8; col >= 1; col--){
-                    printSquare(board, row, col);
+                for (int col = 8; col >= 1; col--) {
+                    printSquare(board, row, col, highlighted.contains(new ChessPosition(row, col)));
                 }
                 System.out.println(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + " " + row + " " + RESET_BG_COLOR);
             }
@@ -316,19 +323,34 @@ public class ChessClient {
         }
     }
 
-    private void printSquare(ChessBoard board, int row, int col) {
-        boolean light = (row + col) % 2 == 1;
-        if(light){
-            System.out.print(SET_BG_COLOR_LIGHT_GREY);
+    public String legalMoves(String[] params) throws ResponseException {
+        if (params.length < 1) {
+            throw new ResponseException(400, "Expected: legal-moves <SQUARE> (example: legal-moves e2)");
         }
-        else{
+        if (currentGame == null) {
+            throw new ResponseException(400, "No game loaded.");
+        }
+        ChessPosition position = parsePosition(params[0]);
+        Set<ChessPosition> highlighted = currentGame.validMoves(position).stream()
+                .map(ChessMove::getEndPosition)
+                .collect(Collectors.toSet());
+        highlighted.add(position);
+        printBoard(currentGame, myColor, highlighted);
+        return "";
+    }
+
+    private void printSquare(ChessBoard board, int row, int col, boolean highlight) {
+        if (highlight) {
+            System.out.print(SET_BG_COLOR_DARK_GREEN);
+        } else if ((row + col) % 2 == 1) {
+            System.out.print(SET_BG_COLOR_LIGHT_GREY);
+        } else {
             System.out.print(SET_BG_COLOR_DARK_GREY);
         }
         ChessPiece piece = board.getPiece(new ChessPosition(row, col));
-        if(piece != null){
+        if (piece != null) {
             System.out.print(getPieceSymbol(piece));
-        }
-        else{
+        } else {
             System.out.print(EMPTY);
         }
     }
