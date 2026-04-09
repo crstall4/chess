@@ -33,6 +33,7 @@ public class ChessClient {
     private int currentGameID;
 
     private ChessGame currentGame;
+    private final Scanner scanner = new Scanner(System.in);
 
 
     public ChessClient(String serverUrl) {
@@ -46,7 +47,6 @@ public class ChessClient {
         System.out.println("Welcome to Chess! Sign in to start.");
         System.out.print(help());
 
-        Scanner scanner = new Scanner(System.in);
         var result = "";
         while (!result.equals("quit")) {
             printPrompt();
@@ -246,6 +246,14 @@ public class ChessClient {
     }
 
     public String resign(String[] params) throws ResponseException {
+        System.out.println("Are you sure you want to resign? (yes/no)");
+        printPrompt();
+        String confirmationMessage = scanner.nextLine();
+        if (!confirmationMessage.equalsIgnoreCase("yes")) {
+            return "Resign cancelled";
+        }
+
+
         try {
             ws.sendCommand(new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, currentGameID, null));
         } catch (Exception e) {
