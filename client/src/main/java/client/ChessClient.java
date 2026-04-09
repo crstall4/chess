@@ -104,7 +104,7 @@ public class ChessClient {
                 }
                 else{
                     return switch (cmd) {
-                        case "redraw" -> doesNothing(params);
+                        case "redraw" -> redraw(params);
                         case "leave" -> leave(params);
                         case "move" -> move(params);
                         case "resign" -> resign(params);
@@ -321,6 +321,14 @@ public class ChessClient {
             }
             System.out.println(SET_BG_COLOR_BLACK + SET_TEXT_COLOR_WHITE + "    h  g  f  e  d  c  b  a    " + RESET_BG_COLOR);
         }
+    }
+
+    public String redraw(String[] params) throws ResponseException {
+        if (currentGame == null) {
+            throw new ResponseException(400, "No game loaded.");
+        }
+        printBoard(currentGame, myColor);
+        return "";
     }
 
     public String legalMoves(String[] params) throws ResponseException {
