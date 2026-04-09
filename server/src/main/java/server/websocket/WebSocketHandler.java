@@ -50,7 +50,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             switch (command.getCommandType()) {
                 case CONNECT -> connect(ctx.session, command);
                 case MAKE_MOVE -> makeMove(ctx.session, command);
-                case LEAVE -> {}
+                case LEAVE -> leave(ctx.session, command);
                 case RESIGN -> {}
             }
         } catch (Exception ex) {
@@ -154,6 +154,32 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 connections.broadcast(gameID, null, new NotificationMessage("Stalemate! The game is a draw."));
             }
 
+        } catch (ResponseException e) {
+            connections.sendToSession(session, new ErrorMessage("Error: " + e.getMessage()));
+        }
+    }
+
+    private void leave(Session session, UserGameCommand command) throws IOException {
+        try {
+            authDAO.confirmAuth(command.getAuthToken());
+            String username = authDAO.getUsername(command.getAuthToken());
+            int gameID = command.getGameID();
+            GameData gameData = gameDAO.getGame(gameID);
+
+            if (gameData != null) {
+                GameData updated;
+                if (username.equals(gameData.whiteUsername())) {
+                    updated = new GameData(gameData.gameID(), null, gameData.blackUsername(), gameData.gameName(), gameData.game());
+                    gameDAO.updateGame(updated);
+                }
+                if (username.equals(gameData.blackUsername())) {
+                    updated = new GameData(gameData.gameID(), gameData.whiteUsername(), null, gameData.gameName(), gameData.game());
+                    gameDAO.updateGame(updated);
+                }
+            }
+
+            connections.remove(gameID, session);
+            connections.broadcast(gameID, null, new NotificationMessage(username + " left the game"));
         } catch (ResponseException e) {
             connections.sendToSession(session, new ErrorMessage("Error: " + e.getMessage()));
         }

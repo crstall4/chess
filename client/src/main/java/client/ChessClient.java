@@ -102,7 +102,7 @@ public class ChessClient {
                 else{
                     return switch (cmd) {
                         case "redraw" -> doesNothing(params);
-                        case "leave" -> doesNothing(params);
+                        case "leave" -> leave(params);
                         case "move" -> move(params);
                         case "resign" -> doesNothing(params);
                         case "legal-moves" -> doesNothing(params);
@@ -229,6 +229,17 @@ public class ChessClient {
             throw new ResponseException(500, "Failed to send move: " + e.getMessage());
         }
         return "";
+    }
+
+    public String leave(String[] params) throws ResponseException {
+        try {
+            ws.sendCommand(new UserGameCommand(UserGameCommand.CommandType.LEAVE, authToken, currentGameID, null));
+        } catch (Exception e) {
+            throw new ResponseException(500, "Failed to send leave: " + e.getMessage());
+        }
+        ws = null;
+        gameJoined = false;
+        return "Left the game.";
     }
 
     private ChessPosition parsePosition(String pos) throws ResponseException {
