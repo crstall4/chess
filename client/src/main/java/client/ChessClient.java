@@ -223,15 +223,26 @@ public class ChessClient {
 
     public String move(String[] params) throws ResponseException {
         if (params.length < 2) {
-            throw new ResponseException(400, "Expected: move <FROM> <TO> (example: move e2 e4)");
+            throw new ResponseException(400, "Expected: \nmove <FROM> <TO> (example: move e2 e4)\n OR\nmove <FROM> <TO> [PROMOTION] (example: move e7 e8 queen)");
         }
-        ChessMove move = new ChessMove(parsePosition(params[0]), parsePosition(params[1]), null);
+        ChessPiece.PieceType promotion = params.length >= 3 ? parsePromotion(params[2]) : null;
+        ChessMove move = new ChessMove(parsePosition(params[0]), parsePosition(params[1]), promotion);
         try {
             ws.sendCommand(new UserGameCommand(UserGameCommand.CommandType.MAKE_MOVE, authToken, currentGameID, move));
         } catch (Exception e) {
             throw new ResponseException(500, "Failed to send move: " + e.getMessage());
         }
         return "";
+    }
+
+    private ChessPiece.PieceType parsePromotion(String piece) throws ResponseException {
+        return switch (piece.toLowerCase()) {
+            case "queen" -> ChessPiece.PieceType.QUEEN;
+            case "rook" -> ChessPiece.PieceType.ROOK;
+            case "bishop" -> ChessPiece.PieceType.BISHOP;
+            case "knight" -> ChessPiece.PieceType.KNIGHT;
+            default -> throw new ResponseException(400, piece + " is not a valid promotion piece. Choose between queen, rook, bishop, or knight");
+        };
     }
 
     public String leave(String[] params) throws ResponseException {
@@ -404,12 +415,12 @@ public class ChessClient {
         }
         else {
             return """
-                    redraw                      Redraws the chess board
-                    leave                       Leave the game and return to post-login menu
-                    move <FROM> <TO>            Make a move (example: move e2 e4)
-                    resign                      Resign from the game
-                    legal-moves <SQUARE>        Highlight legal moves for a piece (example: legal-moves e2)
-                    help                        Displays text informing the user what actions they can take
+                    redraw                          Redraws the chess board
+                    leave                           Leave the game and return to post-login menu
+                    move <FROM> <TO> [PROMOTION]    Make a move (example: move e2 e4 OR move e7 e8 queen)
+                    resign                          Resign from the game
+                    legal-moves <SQUARE>            Highlight legal moves for a piece (example: legal-moves e2)
+                    help                            Displays text informing the user what actions they can take
                     """;
         }
     }
