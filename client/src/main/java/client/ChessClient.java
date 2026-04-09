@@ -104,7 +104,7 @@ public class ChessClient {
                         case "redraw" -> doesNothing(params);
                         case "leave" -> leave(params);
                         case "move" -> move(params);
-                        case "resign" -> doesNothing(params);
+                        case "resign" -> resign(params);
                         case "legal-moves" -> doesNothing(params);
                         default -> help();
                     };
@@ -240,6 +240,15 @@ public class ChessClient {
         ws = null;
         gameJoined = false;
         return "Left the game.";
+    }
+
+    public String resign(String[] params) throws ResponseException {
+        try {
+            ws.sendCommand(new UserGameCommand(UserGameCommand.CommandType.RESIGN, authToken, currentGameID, null));
+        } catch (Exception e) {
+            throw new ResponseException(500, "Failed to resign: " + e.getMessage());
+        }
+        return "Resigned from the game.";
     }
 
     private ChessPosition parsePosition(String pos) throws ResponseException {

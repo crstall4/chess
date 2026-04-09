@@ -51,7 +51,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 case CONNECT -> connect(ctx.session, command);
                 case MAKE_MOVE -> makeMove(ctx.session, command);
                 case LEAVE -> leave(ctx.session, command);
-                case RESIGN -> {}
+                case RESIGN -> resign(ctx.session, command);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -184,4 +184,36 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             connections.sendToSession(session, new ErrorMessage("Error: " + e.getMessage()));
         }
     }
+
+    private void resign(Session session, UserGameCommand command) throws IOException {
+        try {
+            authDAO.confirmAuth(command.getAuthToken());
+            String username = authDAO.getUsername(command.getAuthToken());
+            int gameID = command.getGameID();
+            GameData gameData = gameDAO.getGame(gameID);
+
+            if (gameData == null) {
+                connections.sendToSession(session, new ErrorMessage("Error: Game not found"));
+                return;
+            }
+
+            if (!username.equals(gameData.whiteUsername()) && !username.equals(gameData.blackUsername())) {
+                connections.sendToSession(session, new ErrorMessage("Error: Observers cannot resign"));
+                return;
+            }
+
+            if (gameData.game().isGameOver()) {
+                connections.sendToSession(session, new ErrorMessage("Error: The game is already over"));
+                return;
+            }
+
+            gameData.game().setGameOver(true);
+            gameDAO.updateGame(gameData);
+
+            connections.broadcast(gameID, null, new NotificationMessage(username + " resigned from the game"));
+        } catch (ResponseException e) {
+            connections.sendToSession(session, new ErrorMessage("Error: " + e.getMessage()));
+        }
+    }
+
 }
